@@ -1,0 +1,35 @@
+$active-bg: #cec;
+$active-text: #474;
+$active-outline: #7a7;
+$corner-radius: 1rem;
+
+#main {
+  width: 480px;
+  margin-top: 1rem;
+}
+
+.tab-content .container {
+  min-height: 360px;
+  border: solid 1px $active-outline;
+  border-radius: 0 0 $corner-radius $corner-radius;
+  border-top: none;
+  padding: 1rem;
+}
+
+#main .nav-link {
+  border-radius: $corner-radius $corner-radius 0 0;
+}
+
+#main .nav-link.active {
+  background-color: $active-bg;
+  border-color: $active-outline;
+  border-bottom-color: $active-bg;
+  color: $active-text;
+  font-weight: bold;
+}
+
+#main .nav-link {
+  background-color: #eee;
+  color: #999;
+  border-bottom-color: $active-outline;
+}

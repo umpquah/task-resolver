@@ -1,7 +1,10 @@
 import { useState } from "react";
-import { Button, Container, Spinner } from "react-bootstrap";
+import { Button, Container, ProgressBar, Spinner } from "react-bootstrap";
 
 const ROLLING_DELAY = 500;
+// const SECOND_DELAY = 1000;
+const SECOND_DELAY = 100;
+
 
 const Stage = ({
   name,
@@ -15,7 +18,7 @@ const Stage = ({
   const [started, setStarted] = useState(false);
   const [rolling, setRolling] = useState(false);
   const [completed, setCompleted] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState(duration);
+  const [timeRemaining, setTimeRemaining] = useState(duration ? duration : 0);
   const [timer, setTimer] = useState(null);
 
   const handleStart = () => {
@@ -33,19 +36,22 @@ const Stage = ({
     }
   };
 
-  const tick = () {
-    if (timeRemaining == 0) {
-      clearInterval(timer);
-      setCompleted(true);
-    } else {
-      setTimeRemaining((t) => (t - 1));
-    }
-  }
+  const tick = () => {
+    setTimeRemaining((t) => {
+      if (t == 0) {
+        clearInterval(timer);
+        setCompleted(true);
+        return t;
+      } else {
+        return t - 1;
+      }
+    });
+  };
 
   const runTimer = () => {
-    const timer = setInterval(tick, 1000);
+    const timer = setInterval(tick, SECOND_DELAY);
     setTimer(timer);
-  }
+  };
 
   return (
     <Container className="stage">
@@ -67,6 +73,11 @@ const Stage = ({
         <div className="resultMsg">
           Result:<br />
           {resultInstruction}
+          {duration &&
+            <div>
+              <ProgressBar now={100 - 100 * timeRemaining / duration} />
+            </div>
+          } 
         </div>
       }
       {(started && !rolling && completed) &&

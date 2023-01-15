@@ -63,7 +63,7 @@ const Game = ({ config, setConfig }) => {
           <ResultInstruction phrase="Duration is" quantity="1 minute" />
         }
         endPhrase="Continue"
-        duration={60}
+        duration={10}
         whenDone={handleStageFinish}
       />
     </Container>

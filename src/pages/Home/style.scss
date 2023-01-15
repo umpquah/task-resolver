@@ -1,6 +1,8 @@
 $active-bg: #cec;
 $active-text: #474;
+$active-text-darker: #363;
 $active-outline: #7a7;
+$special-text: rgb(11, 63, 69);
 $corner-radius: 1rem;
 
 #main {
@@ -8,7 +10,7 @@ $corner-radius: 1rem;
   margin-top: 1rem;
 }
 
-.tab-content .container {
+.tab-content > div > .container {
   min-height: 360px;
   border: solid 1px $active-outline;
   border-radius: 0 0 $corner-radius $corner-radius;
@@ -33,3 +35,53 @@ $corner-radius: 1rem;
   color: #999;
   border-bottom-color: $active-outline;
 }
+
+.container.stage {
+  text-align: center;
+  font-size: 1.3rem;
+  margin-bottom: 3rem;
+
+  .banner, .resultMsg {
+    padding: 0.5rem 0 0.5rem 0;
+  }
+  .banner {
+    border-top: 1px solid $active-outline;
+    border-bottom: 1px solid $active-outline;
+  }
+  .resultMsg, .completionMsg {
+    border-bottom: 1px solid $active-outline;
+  }
+  .name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: $active-text-darker;
+  }
+  button {
+    background-color: $active-text;
+    border: solid 1px $active-outline;
+    color: white;
+    margin-top: 0.5rem;
+  }
+  button:hover, button:active {
+    border: solid 1px $active-outline;
+    background-color: $active-text-darker;
+  }
+  .roll {
+    margin-top: 0.5rem;
+  }
+  .plain {
+    font-size: 1.1rem;
+  }
+  .result {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: $active-text-darker;
+    .quantity {
+      color: $special-text;
+      text-decoration: underline;
+    }
+  }
+}
+
+
+

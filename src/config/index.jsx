@@ -15,7 +15,7 @@ const HELPERS = {
     },
     format: (value, units) => {
       let lastLetter = units.charAt(units.length - 1);
-      let ustr = (value == 1 && lastLetter == "s") 
+      let ustr = (value === 1 && lastLetter === "s") 
         ? units.substring(0, units.length - 1)
         : units;
       return `${value} ${ustr}`;

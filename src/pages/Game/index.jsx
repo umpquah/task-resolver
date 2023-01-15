@@ -1,7 +1,10 @@
-import { useState } from "react";
-import { Alert, Button, Container } from "react-bootstrap";
+import { useEffect, useState } from "react";
+import { Alert, Container } from "react-bootstrap";
+import Config, { DEFAULT_CONFIG } from "../../config"; 
+import Stage from "../../components/Stage";
+import ResultInstruction from "../../components/ResultInstruction";
 
-const Report = ({ message, isError }) => {
+const MessageBanner = ({ message, isError }) => {
   return (
     message 
     ? <Alert variant={ isError ? "danger" : "primary" }>
@@ -11,29 +14,58 @@ const Report = ({ message, isError }) => {
   );
 };
 
-const Game = ({ config }) => {  
+const Game = ({ config, setConfig }) => {  
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
+  const [stage, setStage] = useState("Wait");
 
-  const handleClick = () => {
+  useEffect(() => {
     try {
-      let result = config.evaluate("rewardResult");
-      setStatus(`Time result: ${result}`);
+      const initialConfig = new Config(DEFAULT_CONFIG);
+      setConfig(initialConfig);
     } catch (e) {
       setError(e.toString());
     }
-  }
+  }, []);
+
+  const handleStageFinish = () => {
+    console.log("Ok, stage finished!");
+  };
 
   return (
     <Container>
-      <Button 
-        variant="primary"
-        onClick={handleClick}
-      >
-        Check Behavior
-      </Button>
-      <Report message={status} isError={false} />
-      <Report message={error} isError={true} />
+      <MessageBanner message={status} isError={false} />
+      <MessageBanner message={error} isError={true} />
+      <Stage
+        name="Setup"
+        startPhrase="Start"
+        resultInstruction={
+          <ResultInstruction phrase="You must eat" quantity="5 lemons" />
+        }
+        hasTask={true}
+        endPhrase="Done"
+        whenDone={handleStageFinish}
+      />
+      <Stage
+        name="Test"
+        startPhrase="Roll"
+        resultInstruction={
+          <ResultInstruction phrase="Winner!" />
+        }
+        hasTask={false}
+        endPhrase="Done"
+        whenDone={handleStageFinish}
+      />
+      <Stage
+        name="Countdown"
+        startPhrase="Roll"
+        resultInstruction={
+          <ResultInstruction phrase="Duration is" quantity="1 minute" />
+        }
+        endPhrase="Continue"
+        duration={60}
+        whenDone={handleStageFinish}
+      />
     </Container>
   );
 };

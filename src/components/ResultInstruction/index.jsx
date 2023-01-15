@@ -1,14 +1,19 @@
-const ResultInstruction = ({ phrase, quantity }) => {  
+const ResultInstruction = ({ instruction, quantity }) => {  
+  const regex = /(.*)\[](.*)/;
+  const found = instruction.match(regex);
+  let before = instruction, amount = "", after = "";
+  if (found) {
+    before = found[1];
+    amount = quantity;
+    after = found[2];
+  } 
   return (
     <span className="result">
-      {phrase}
+      {before}
       {quantity &&
-        <>
-          {" "}
-          <span className="quantity">{quantity}</span>
-          .
-        </>
+        <span className="quantity">{amount}</span>
       }
+      {after}
     </span>
   );
 };

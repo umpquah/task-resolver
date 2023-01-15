@@ -5,7 +5,6 @@ const ROLLING_DELAY = 500;
 // const SECOND_DELAY = 1000;
 const SECOND_DELAY = 100;
 
-
 const Stage = ({
   name,
   startPhrase,

@@ -2,7 +2,7 @@ $active-bg: #cec;
 $active-text: #474;
 $active-text-darker: #363;
 $active-outline: #7a7;
-$special-text: rgb(11, 63, 69);
+$special-text: rgb(57, 14, 107);
 $corner-radius: 1rem;
 
 #main {
@@ -40,22 +40,9 @@ $corner-radius: 1rem;
   text-align: center;
   font-size: 1.3rem;
   margin-bottom: 3rem;
+}
 
-  .banner, .resultMsg {
-    padding: 0.5rem 0 0.5rem 0;
-  }
-  .banner {
-    border-top: 1px solid $active-outline;
-    border-bottom: 1px solid $active-outline;
-  }
-  .resultMsg, .completionMsg {
-    border-bottom: 1px solid $active-outline;
-  }
-  .name {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: $active-text-darker;
-  }
+.cotainer.stage {
   button {
     background-color: $active-text;
     border: solid 1px $active-outline;
@@ -66,22 +53,47 @@ $corner-radius: 1rem;
     border: solid 1px $active-outline;
     background-color: $active-text-darker;
   }
-  .roll {
-    margin-top: 0.5rem;
-  }
-  .plain {
-    font-size: 1.1rem;
-  }
-  .result {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: $active-text-darker;
-    .quantity {
-      color: $special-text;
-      text-decoration: underline;
-    }
+}
+
+.banner, .resultMsg {
+  padding: 0.5rem 0 0.5rem 0;
+}
+
+.banner {
+  border-top: 1px solid $active-outline;
+  border-bottom: 1px solid $active-outline;
+}
+
+.resultMsg, .completionMsg {
+  border-bottom: 1px solid $active-outline;
+}
+
+.name {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: $active-text-darker;
+}
+
+
+
+.roll {
+  margin-top: 0.5rem;
+}
+
+.plain {
+  font-size: 1.1rem;
+}
+
+.result {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: $active-text-darker;
+  .quantity {
+    color: $special-text;
+    text-decoration: underline;
   }
 }
+
 
 
 

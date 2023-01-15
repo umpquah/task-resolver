@@ -1,34 +1,11 @@
 export const DEFAULT_CONFIG = {
-  stages: {
-    wait: {
-      settings: {
-        name: "Wait",
-        unit: "minutes",
-        range: [3, 10],
-        baseAmount: 1,
-        startPhrase: "Roll",
-        instruction: "Wait [] now.",
-        endPhrase: "Continue",
-        durationMultiplier: 60,
-      },
-      result: "randomInt(...rangezz) * baseAmount"
-    },
-    // decide: {
+  "wait": {
 
-    // },
-    // reward: {
-    
-    // },
-    // penalty: {
-
-    // }
   },
-  transitions: {
-    wait: (_) => "decide"
-  }
-};
+  "decide": {
 
-/*
+  },
+  
     "settings": {
         "timeUnitName": "minutes",
         "timeSecondsConversion": 60,
@@ -49,4 +26,4 @@ export const DEFAULT_CONFIG = {
         "reward": "randomInt(...rewardRange) * baseRewardOrPenaltyAmount",
         "penalty": "randomInt(...penaltyRange) * baseRewardOrPenaltyAmount",
     }
-*/
+};

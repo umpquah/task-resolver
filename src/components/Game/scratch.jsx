@@ -1,3 +1,5 @@
+/* 
+
 <Stage
 name="Setup"
 startPhrase="Start"
@@ -28,3 +30,4 @@ endPhrase="Continue"
 duration={10}
 whenDone={handleStageFinish}
 />
+*/

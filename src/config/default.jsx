@@ -1,52 +1,68 @@
-export const DEFAULT_CONFIG = {
+export const DEFAULT_CONFIG_JSON = JSON.stringify({
   stages: {
     wait: {
       settings: {
         name: "Wait",
-        unit: "minutes",
-        range: [3, 10],
+        units: ["minute", "minutes"],
+        range: [1, 3],
         baseAmount: 1,
         startPhrase: "Roll",
-        instruction: "Wait [] now.",
-        endPhrase: "Continue",
+        instruction: "Wait [result] now.",
+        usesTimer: true,
         durationMultiplier: 60,
+        endPhrase: "Continue",
       },
-      result: "randomInt(...rangezz) * baseAmount"
+      result: "randomInt(...range) * baseAmount",
+      formatResult: "formatAmountWithUnits(result, ...units)",
+      next: "'decide'"
     },
-    // decide: {
-
-    // },
-    // reward: {
-    
-    // },
-    // penalty: {
-
-    // }
-  },
-  transitions: {
-    wait: (_) => "decide"
-  }
-};
-
-/*
-    "settings": {
-        "timeUnitName": "minutes",
-        "timeSecondsConversion": 60,
-        "timeInstruction": "Wait for [].",
-        "unitName": "ounces",
-        "rewardInstruction": "Eat [] of lemons.",
-        "penaltyInstruction": "Discard [] of lemons.",
-        "baseTimeAmount": 1,
-        "timeRange": [3, 10],
-        "chanceOfReward": 0.4,
-        "baseRewardOrPenaltyAmount": 4,
-        "rewardRange": [1, 3],
-        "penaltyRange": [1, 3]
+    decide: {
+      settings: {
+        name: "Decide",
+        rewardChance: 0.4,
+        outcomes: ["Reward", "Penalty"],
+        startPhrase: "Roll",
+        instruction: "You receive a [result]!",
+        usesTimer: false,
+        hasTask: false,
+        endPhrase: "Continue",
+      },
+      result: "randomBinaryChoice(rewardChance, ...outcomes)",
+      formatResult: "result",
+      next: "result === 'Reward' ? 'reward' : 'penalty'"
     },
-    "values": {
-        "time": "randomInt(...timeRange) * baseTimeAmount",
-        "decideIfReward": "randomBool(chanceOfReward)",
-        "reward": "randomInt(...rewardRange) * baseRewardOrPenaltyAmount",
-        "penalty": "randomInt(...penaltyRange) * baseRewardOrPenaltyAmount",
+    reward: {
+      settings: {
+        name: "Reward",
+        units: ["pound", "pounds"],
+        range: [1, 3],
+        baseAmount: 4,
+        startPhrase: "Roll",
+        instruction: "You may eat [result] of cookies.",
+        usesTimer: false,
+        hasTask: true,
+        endPhrase: "Continue"
+      },
+      result: "randomInt(...range) * baseAmount",
+      formatResult: "formatAmountWithUnits(result, ...units)",
+      next: "'wait'"
+    },
+    penalty: { 
+      settings: {
+        name: "Penalty",
+        units: ["pound", "pounds"],
+        range: [2, 4],
+        baseAmount: 4,
+        startPhrase: "Roll",
+        instruction: "You must destroy [result] of cookies.",
+        usesTimer: false,
+        hasTask: true,
+        endPhrase: "Continue"
+      },
+      result: "randomInt(...range) * baseAmount",
+      formatResult: "formatAmountWithUnits(result, ...units)",
+      next: "'wait'"
     }
-*/
+  },
+  initialStage: "wait"
+}, null, 2);

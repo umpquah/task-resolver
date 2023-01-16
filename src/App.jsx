@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Container, Tab, Tabs } from "react-bootstrap";
-import Config, { DEFAULT_CONFIG } from "./config";
+import Config, { ConfigError, DEFAULT_CONFIG_JSON } from "./config";
 import Game from "./components/Game";
 import ConfigPanel from "./components/ConfigPanel"
 import MessageBanner from "./components/MessageBanner";
@@ -12,10 +12,14 @@ const App = () => {
 
   useEffect(() => {
     try {
-      const initialConfig = new Config(DEFAULT_CONFIG);
+      const initialConfig = new Config(DEFAULT_CONFIG_JSON);
       setConfig(initialConfig);
     } catch (e) {
-      setError(e.toString());
+      if (e instanceof ConfigError) {
+        setError(`Configuration problem: ${e.message}`);
+      } else {
+        setError(e.toString());
+      }
     }
   }, []);
 
@@ -24,10 +28,10 @@ const App = () => {
       <MessageBanner message={error} isError={true} />
       <Tabs fill>
         <Tab eventKey="game" title="Game">
-          <Game config={config} setConfig={setConfig} />
+          <Game config={config} setConfig={setConfig} setError={setError} />
         </Tab>
         <Tab eventKey="config-panel" title="Config">
-          <ConfigPanel config={config} setConfig={setConfig} />
+          <ConfigPanel config={config} setConfig={setConfig} setError={setError} />
         </Tab>
       </Tabs>
     </Container>

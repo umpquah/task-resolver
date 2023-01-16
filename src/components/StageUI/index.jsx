@@ -1,43 +1,62 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Container, ProgressBar, Spinner } from "react-bootstrap";
+import Instructions from "../Instructions";
 
 const ROLLING_DELAY = 500;
-// const SECOND_DELAY = 1000;
-const SECOND_DELAY = 100;
+const SECOND_DELAY = 1000;
 
-const Stage = ({
-  name,
-  startPhrase,
-  resultInstruction,
-  duration,
-  hasTask,
-  endPhrase,
-  whenDone 
+const StageUI = ({
+  stageConfig: {
+    settings: {
+      name,
+      startPhrase,
+      instruction,
+      usesTimer,
+      durationMultiplier,
+      hasTask,
+      endPhrase,
+    },
+    result,
+    formatResult
+  },
+  whenDone
 }) => {  
   const [started, setStarted] = useState(false);
   const [rolling, setRolling] = useState(false);
   const [completed, setCompleted] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState(duration ? duration : 0);
+  const [timeRemaining, setTimeRemaining] = useState(0);
+  const [duration, setDuration] = useState(0);
   const [timer, setTimer] = useState(null);
+  const [resultValue, setResultValue] = useState("");
 
-  const handleStart = () => {
+  useEffect(() => {
+    setResultValue(result());
+  }, [result])
+
+  const reset = () => {
+    setStarted(false);
+    setCompleted(false);
+    setResultValue("");
+  }
+
+  const handleStartStage = () => {
     setStarted(true);
     setRolling(true);
-    setTimeout(resultReady, ROLLING_DELAY);
+    setTimeout(handleEndRolling, ROLLING_DELAY);
   };
 
-  const resultReady = () => {
+  const handleEndRolling = () => {
     setRolling(false);
-    if (!duration) {
+    if (!durationMultiplier) {
       setCompleted(true);
     } else {
-      runTimer();
+      startTimer();
     }
   };
 
   const tick = () => {
     setTimeRemaining((t) => {
-      if (t == 0) {
+      if (t === 0) {
         clearInterval(timer);
         setCompleted(true);
         return t;
@@ -47,8 +66,16 @@ const Stage = ({
     });
   };
 
-  const runTimer = () => {
+  const handleDone = () => {
+    reset();
+    whenDone(resultValue);
+  }
+
+  const startTimer = () => {
     const timer = setInterval(tick, SECOND_DELAY);
+    const seconds = resultValue * durationMultiplier;
+    setTimeRemaining(seconds);
+    setDuration(seconds);
     setTimer(timer);
   };
 
@@ -59,7 +86,7 @@ const Stage = ({
         <span className="name">{name}</span>
       </div>
       {!started &&
-        <Button onClick={handleStart}>
+        <Button className="roll" onClick={handleStartStage}>
           {startPhrase}
         </Button>
       }
@@ -70,9 +97,8 @@ const Stage = ({
       }
       {(started && !rolling) && 
         <div className="resultMsg">
-          Result:<br />
-          {resultInstruction}
-          {duration &&
+          <Instructions message={instruction} result={formatResult(resultValue)} />
+          {usesTimer &&
             <div>
               <ProgressBar now={100 - 100 * timeRemaining / duration} />
             </div>
@@ -80,13 +106,13 @@ const Stage = ({
         </div>
       }
       {(started && !rolling && completed) &&
-        <div>
+        <div className="complete">
           {hasTask &&
             <div className="plain">
-              Complete the task, then click to continue:
+              Once you have done that:
             </div>
           }
-          <Button onClick={whenDone}>
+          <Button onClick={handleDone}>
             {endPhrase}
           </Button>
         </div>
@@ -95,4 +121,4 @@ const Stage = ({
   );
 };
   
-export default Stage;
+export default StageUI;

@@ -2,7 +2,7 @@ $active-bg: #cec;
 $active-text: #474;
 $active-text-darker: #363;
 $active-outline: #7a7;
-$special-text: rgb(57, 14, 107);
+$special-text: #003b5a;
 $corner-radius: 1rem;
 
 #main {
@@ -76,7 +76,7 @@ $corner-radius: 1rem;
 
 
 
-.roll {
+.roll, .complete {
   margin-top: 0.5rem;
 }
 
@@ -84,11 +84,11 @@ $corner-radius: 1rem;
   font-size: 1.1rem;
 }
 
-.result {
+.instruction {
   font-size: 1.5rem;
   font-weight: bold;
   color: $active-text-darker;
-  .quantity {
+  .result {
     color: $special-text;
     text-decoration: underline;
   }

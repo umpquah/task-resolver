@@ -16,9 +16,9 @@ const App = () => {
       setConfig(initialConfig);
     } catch (e) {
       if (e instanceof ConfigError) {
-        setError(`Configuration problem: ${e.message}`);
+        setError(["Configuration Problem", e.message]);
       } else {
-        setError(e.toString());
+        setError([`Unexpected Error - ${e.name}`, e.message]);
       }
     }
   }, []);

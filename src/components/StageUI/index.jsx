@@ -3,7 +3,7 @@ import { Button, Container, ProgressBar, Spinner } from "react-bootstrap";
 import Instructions from "../Instructions";
 
 const ROLLING_DELAY = 500;
-const SECOND_DELAY = 1000;
+const SECOND_DELAY = 10;
 
 const StageUI = ({
   stageConfig: {

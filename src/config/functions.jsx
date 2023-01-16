@@ -1,4 +1,4 @@
-export const HELPER_FUNCTIONS = {
+export const FUNCTION_LIBRARY = {
   randomInt: (min, max) => (Math.floor(Math.random() * (max - min + 1)) + min),
   randomBinaryChoice: (probability, a, b) => (Math.random() > probability) ? a : b,
   randomChoice: (options) => {

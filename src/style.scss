@@ -74,8 +74,6 @@ $corner-radius: 1rem;
   color: $active-text-darker;
 }
 
-
-
 .roll, .complete {
   margin-top: 0.5rem;
 }
@@ -94,6 +92,9 @@ $corner-radius: 1rem;
   }
 }
 
+.emphasized {
+  font-weight: bold;
+}
 
 
 

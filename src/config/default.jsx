@@ -13,7 +13,7 @@ export const DEFAULT_CONFIG_JSON = JSON.stringify({
         endPhrase: "Continue",
       },
       result: "randomInt(...range) * baseAmount",
-      formatResult: "formatAmountWithUnits(result, ...units)",
+      formatResult: "(r) => formatAmountWithUnits(r, ...units)",
       next: "'decide'"
     },
     decide: {
@@ -28,8 +28,8 @@ export const DEFAULT_CONFIG_JSON = JSON.stringify({
         endPhrase: "Continue",
       },
       result: "randomBinaryChoice(rewardChance, ...outcomes)",
-      formatResult: "result",
-      next: "result === 'Reward' ? 'reward' : 'penalty'"
+      formatResult: "(r) => r",
+      next: "(r) => r === 'Reward' ? 'reward' : 'penalty'"
     },
     reward: {
       settings: {
@@ -44,7 +44,7 @@ export const DEFAULT_CONFIG_JSON = JSON.stringify({
         endPhrase: "Continue"
       },
       result: "randomInt(...range) * baseAmount",
-      formatResult: "formatAmountWithUnits(result, ...units)",
+      formatResult: "(r) => formatAmountWithUnits(r, ...units)",
       next: "'wait'"
     },
     penalty: { 
@@ -60,7 +60,7 @@ export const DEFAULT_CONFIG_JSON = JSON.stringify({
         endPhrase: "Continue"
       },
       result: "randomInt(...range) * baseAmount",
-      formatResult: "formatAmountWithUnits(result, ...units)",
+      formatResult: "(r) => formatAmountWithUnits(r, ...units)",
       next: "'wait'"
     }
   },

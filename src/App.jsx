@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Container, Tab, Tabs } from "react-bootstrap";
-import Config, { ConfigError, DEFAULT_CONFIG_JSON } from "./config";
-import Game from "./components/Game";
-import ConfigPanel from "./components/ConfigPanel"
+import Config, { ConfigError, DEFAULT_CONFIG_JSON, SFW_LEXICON } from "./config";
+import Game from "./pages/Game";
+import ConfigPanel from "./pages/ConfigPanel"
 import MessageBanner from "./components/MessageBanner";
+import Testing from "./pages/Testing";
 import './style.scss';
 
 const App = () => {
@@ -12,7 +13,7 @@ const App = () => {
 
   useEffect(() => {
     try {
-      const initialConfig = new Config(DEFAULT_CONFIG_JSON);
+      const initialConfig = new Config(DEFAULT_CONFIG_JSON(SFW_LEXICON));
       setConfig(initialConfig);
     } catch (e) {
       if (e instanceof ConfigError) {
@@ -26,12 +27,15 @@ const App = () => {
   return (
     <Container id="main">
       <MessageBanner message={error} isError={true} />
-      <Tabs fill>
+      <Tabs fill defaultActiveKey="testing">
         <Tab eventKey="game" title="Game">
           <Game config={config} setConfig={setConfig} setError={setError} />
         </Tab>
         <Tab eventKey="config-panel" title="Config">
           <ConfigPanel config={config} setConfig={setConfig} setError={setError} />
+        </Tab>
+        <Tab eventKey="testing" title="Testing">
+          <Testing />
         </Tab>
       </Tabs>
     </Container>

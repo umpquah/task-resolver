@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
-import StageUI from "../StageUI";
+import StageUI from "../../components/StageUI";
 
 const Game = ({ config, setConfig, setError }) => {  
 

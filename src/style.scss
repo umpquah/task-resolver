@@ -10,13 +10,15 @@ $corner-radius: 1rem;
   margin-top: 1rem;
 }
 
-.tab-content > div > .container {
+.tab-content > div > .container,  .tab-content > div > .container-fluid {
   min-height: 360px;
   border: solid 1px $active-outline;
   border-radius: 0 0 $corner-radius $corner-radius;
   border-top: none;
   padding: 1rem;
 }
+
+
 
 #main .nav-link {
   border-radius: $corner-radius $corner-radius 0 0;

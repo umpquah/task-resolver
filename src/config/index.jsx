@@ -4,18 +4,24 @@ import { ConfigError } from "./error";
 class Config {
     constructor(dataJson) {
         this.json = dataJson;
-        const data = JSON.parse(dataJson);
-        Object.assign(this, data); // Link all data.__ to the this object directly
+        let data;
+        try {
+          data = JSON.parse(dataJson);
+        } catch (e) {
+          const msg = e.message.replace("JSON.parse:", "");
+          throw new ConfigError(`Invalid JSON: ${msg}`);
+        }
+        Object.assign(this, data); 
         Object.entries(this.stages).forEach(([key, stage]) => {
-          const { settings, result, formatResult, next } = stage;
-          stage.result = _function(`${key}.result`, result, settings);
-          stage.formatResult = _function(`${key}.formatResult`, formatResult, settings);
-          stage.next = _function(`${key}.next`, next, settings);
+          const { settings } = stage;
+          ["result", "formatResult", "next"].forEach((prop) => {
+            stage[prop] = _function(`${key}.${prop}`, stage[prop], settings)
+          })
         });
     }
 }
 
-const _function = (name, expression, settings, helpers) => {
+const _function = (name, expression, settings) => {
   /* eslint-disable no-new-func */
   const fn = new Function(
       "settings",
@@ -39,7 +45,7 @@ const _function = (name, expression, settings, helpers) => {
 };
 
 export default Config;
-export * from "./default";
+export * from "./defaults";
 export * from "./error";
 
 

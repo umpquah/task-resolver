@@ -4,7 +4,6 @@ import Config, { ConfigError, DEFAULT_CONFIG_JSON, SFW_LEXICON } from "./config"
 import Game from "./pages/Game";
 import ConfigPanel from "./pages/ConfigPanel"
 import MessageBanner from "./components/MessageBanner";
-import Testing from "./pages/Testing";
 import './style.scss';
 
 const App = () => {
@@ -27,15 +26,12 @@ const App = () => {
   return (
     <Container id="main">
       <MessageBanner message={error} isError={true} />
-      <Tabs fill defaultActiveKey="testing">
+      <Tabs fill defaultActiveKey="game">
         <Tab eventKey="game" title="Game">
           <Game config={config} setConfig={setConfig} setError={setError} />
         </Tab>
         <Tab eventKey="config-panel" title="Config">
           <ConfigPanel config={config} setConfig={setConfig} setError={setError} />
-        </Tab>
-        <Tab eventKey="testing" title="Testing">
-          <Testing />
         </Tab>
       </Tabs>
     </Container>

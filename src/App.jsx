@@ -16,16 +16,16 @@ const App = () => {
       setConfig(initialConfig);
     } catch (e) {
       if (e instanceof ConfigError) {
-        setError(["Configuration Problem", e.message]);
+        setError({header: "Configuration Problem", message: e.message});
       } else {
-        setError([`Unexpected Error - ${e.name}`, e.message]);
+        setError({header:`Unexpected Error - ${e.name}`, message: e.message});
       }
     }
   }, []);
 
   return (
     <Container id="main">
-      <MessageBanner message={error} isError={true} />
+      <MessageBanner {...error} isError={true} />
       <Tabs fill defaultActiveKey="game">
         <Tab eventKey="game" title="Game">
           <Game config={config} setConfig={setConfig} setError={setError} />

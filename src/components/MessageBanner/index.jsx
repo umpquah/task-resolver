@@ -1,18 +1,11 @@
 import { Alert } from "react-bootstrap";
 
-const MessageBanner = ({ message, isError }) => {
-  let header = "", text;
-  if (Array.isArray(message)) {
-    [header, text] = message;
-  } else {
-    text = message;
-  }
-
+const MessageBanner = ({ header, message, isError }) => {
   return (
     message 
     ? <Alert variant={ isError ? "danger" : "primary" }>
-        { header && <><span className="emphasized">{message[0]}</span><br /></> }
-        {message[1]} 
+        { header && <><span className="emphasized">{header}</span><br /></> }
+        {message} 
       </Alert>
     : "" 
   );

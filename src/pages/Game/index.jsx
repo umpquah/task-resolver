@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
-import StageUI from "../../components/StageUI";
+import Stage from "../../components/Stage";
 
 const Game = ({ config, setConfig, setError }) => {  
 
@@ -15,16 +15,23 @@ const Game = ({ config, setConfig, setError }) => {
     }
   }, [config, started])
 
+  // const handleTransition = (result) => {
+  //   const newStage = config.stages[stage].next(result);
+  //   setStage(newStage);
+  // }
   const handleTransition = (result) => {
-    const newStage = config.stages[stage].next(result);
-    setStage(newStage);
-  }
 
-  const stageConfig = config ? config.stages[stage] : null;
+  };
+
+  // const stageConfig = config ? config.stages[stage] : null;
+  const names = ["wait", "decide", "reward", "penalty"];
+
   return (
     <Container>
-      {stageConfig &&
-        <StageUI stageConfig={stageConfig} whenDone={handleTransition} />
+      {config &&
+          names.map((name) => (
+            <Stage stageConfig={config.stages[name]} whenDone={handleTransition} />
+          ))
       }
     </Container>
   );

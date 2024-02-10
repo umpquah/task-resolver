@@ -35,7 +35,6 @@ const _function = (name, expression, settings) => {
   try {
     const fnCalled = fn(settings, FUNCTION_LIBRARY);
     if (fnCalled instanceof Function)
-      // second-order function
       return (r) => fn(settings, FUNCTION_LIBRARY)(r);
     else
       return () => fn(settings, FUNCTION_LIBRARY);

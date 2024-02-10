@@ -5,7 +5,7 @@ import Instructions from "../Instructions";
 const ROLLING_DELAY = 500;
 const SECOND_DELAY = 10;
 
-const StageUI = ({
+const Stage = ({
   stageConfig: {
     settings: {
       name,
@@ -121,4 +121,4 @@ const StageUI = ({
   );
 };
   
-export default StageUI;
+export default Stage;

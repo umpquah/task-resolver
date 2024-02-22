@@ -6,8 +6,12 @@ class ConfigError extends Error {
     }
 }
 
-class Variable {
-    constructor(spec) {
+class AbstractVariable {
+    constructor(name, spec) {
+        if (this.constructor == AbstractVariable) {
+            throw Error("AbstractVariable cannot be instantiated ")
+        }
+        this.name = name;
         this.spec = spec;
         this.refresh();
     }
@@ -16,54 +20,59 @@ class Variable {
     }
 }
 
-class StaticVariable extends Variable {
-    get value() {
-        return this.spec;
+class StaticVariable extends AbstractVariable {
+    constructor(name, spec) {
+        super(name, spec);
+        this.value = spec;
     }
 }
 
-class RandomVariable extends Variable {
-    get value() {
-        return this._value;
-    }
-    refresh() {
-        this._value = null;
-    }
-}
-
-class RangeVariable extends RandomVariable {
+class RangeVariable extends AbstractVariable {
     refresh() {
         // TODO: Check spec has valid values
         const [min, max] = this.spec;
-        this._value = Math.floor(Math.random() * (max - min + 1)) + min;
+        this.value = Math.floor(Math.random() * (max - min + 1)) + min;
     }
 }
 
-class BoolVariable extends RandomVariable {
+class BoolVariable extends AbstractVariable {
     refresh() {
         // TODO: Check spec has valid value
         const prob = this.spec;
-        this._value = (Math.random() < prob);
+        this.value = (Math.random() < prob);
     }
 }
 
-class SelectVariable extends RandomVariable {
+class SelectVariable extends AbstractVariable {
     refresh() {
         // TODO: Check spec has valid value
         const options = this.spec;
         const r = Math.floor(Math.random() * options.length);
-        this._value = options[r];
+        this.value = options[r];
     }
 }
 
-class DerivedVariable extends Variable {
-    constructor(spec, derivedFromVariables) {
-        this.spec = spec;
-        this._derivedFrom = derivedFromVariables;
-        this.refresh();
+// TODO: Build out this class, use if for result and actions
+class DerivedVariable extends AbstractVariable {
+    constructor(name, spec, derivedFrom) {
+        super(name, spec);
+        this._derivedFrom = derivedFrom;
+        const names = derivedFrom.map((v) => v.name);
+        this._fn = new Function(...names, "return " + spec + ";");
+        console.log(this._fn);
     }
-    refresh() {
-        
+
+    get value() {
+        const values = this._derivedFrom.map((v) => v.value);
+        return this._fn(...values);
+    }
+
+    _build_fn(variables, expression) {
+        const consts = Object.entries(variables).map(([key, param]) => (
+            `const ${key} = ${JSON.stringify(param.value)};`
+        )).join("\n")
+        const body = `${consts}\n\nreturn ${expression};`;
+        return new Function(body);
     }
 }
 
@@ -115,13 +124,13 @@ class Stage {
         }
     }
 
-    _build_fn(variables, expression) {
-        const consts = Object.entries(variables).map(([key, param]) => (
-            `const ${key} = ${JSON.stringify(param.value)};`
-        )).join("\n")
-        const body = `${consts}\n\nreturn ${expression};`;
-        return new Function(body);
-    }
+    // _build_fn(variables, expression) {
+    //     const consts = Object.entries(variables).map(([key, param]) => (
+    //         `const ${key} = ${JSON.stringify(param.value)};`
+    //     )).join("\n")
+    //     const body = `${consts}\n\nreturn ${expression};`;
+    //     return new Function(body);
+    // }
 
     refresh() {
         Object.values(this._variables).forEach(p => { p.refresh() });
@@ -176,11 +185,28 @@ const stages = {
     }
 };
 
-const stage = new Stage(stages.stageA)
+// const stage = new Stage(stages.stageA)
 
+// for (let i = 0; i < 10; i++) {
+//     // console.dir(stage.current_params);
+//     console.log(stage.result);
+//     // console.log();
+//     stage.refresh();
+// }
+
+// const v = new RangeVariable("v", [3, 8]);
+
+// for (let i = 0; i < 10; i++) {
+//     console.log(v.value);
+//     v.refresh();
+// }
+
+const dozen = new StaticVariable("dozen", 12);
+const count = new RangeVariable("count", [1, 10]);
+
+const result = new DerivedVariable("result", "dozen * count", [dozen, count]);
 for (let i = 0; i < 10; i++) {
-    // console.dir(stage.current_params);
-    console.log(stage.result);
-    // console.log();
-    stage.refresh();
+    dozen.refresh();
+    count.refresh();
+    console.log(result.value);
 }

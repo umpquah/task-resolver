@@ -5,12 +5,18 @@ export class AbstractVariable {
         if (this.constructor == AbstractVariable) {
             throw Error("AbstractVariable cannot be instantiated")
         }
+        // TODO: Reconsider storing the name separately
+        // The use of names in DerivedVariable could be done with
+        // object keys passed in
         this.name = name;
         this.loadSpec(spec);
         this.refresh();
     }
+    loadSpec() {
+
+    }
     refresh() {
-        // no op
+
     }
 }
 
@@ -21,9 +27,6 @@ export class StaticVariable extends AbstractVariable {
 }
 
 export class RangeVariable extends AbstractVariable {
-    refresh() {
-        this.value = Math.floor(Math.random() * (this.max - this.min + 1)) + this.min;
-    }
     loadSpec(spec) {
         if (!Array.isArray(spec) || spec.length != 2) 
             throw new ConfigError("must be two-element array");
@@ -35,30 +38,33 @@ export class RangeVariable extends AbstractVariable {
         this.min = min;
         this.max = max;
     }
+    refresh() {
+        this.value = Math.floor(Math.random() * (this.max - this.min + 1)) + this.min;
+    }
 }
 
 export class BoolVariable extends AbstractVariable {
-    refresh() {
-        this.value = (Math.random() < this.probability);
-    }
     loadSpec(spec) {
         if (typeof spec != "number")
             throw new ConfigError("must be a number");
         if (spec < 0 || spec > 1) 
             throw new ConfigError("must be between 0 and 1");
-        this.prob = spec;
+        this.probability = spec;
+    }
+    refresh() {
+        this.value = (Math.random() < this.probability);
     }
 }
 
 export class SelectVariable extends AbstractVariable {
-    refresh() {
-        const r = Math.floor(Math.random() * this.options.length);
-        this.value = this.options[r];
-    }
     loadSpec(spec) {
         if (!Array.isArray(spec) || spec.length == 0)
             throw new ConfigError("must be an array with >=1 items");
         this.options = spec;
+    }
+    refresh() {
+        const r = Math.floor(Math.random() * this.options.length);
+        this.value = this.options[r];
     }
 }
 
@@ -69,7 +75,6 @@ export class DerivedVariable extends AbstractVariable {
         const names = derivedFrom.map((v) => v.name);
         this._fn = new Function(...names, "return " + spec + ";");
     }
-
     get value() {
         const values = this._derivedFrom.map((v) => v.value);
         return this._fn(...values);

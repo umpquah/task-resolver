@@ -1,4 +1,4 @@
-import { BoolVariable, RangeVariable, SelectVariable, StaticVariable } from "./variable.js";
+import { BoolVariable, DerivedVariable, RangeVariable, SelectVariable, StaticVariable } from "./variable.js";
 import { ConfigError } from "./error.js";
 
 // map param types to variable classes
@@ -9,7 +9,10 @@ const VARTYPE_MAP  = {
     "static": StaticVariable,
 }
 
-
+// TODO refactoring this:
+// - stop storing key as a property, just pass to 
+//    _validateProps and _loadDetails()
+// 
 class ConfigComponent {
     static requiredProps = [];
     static optionalProps = [];
@@ -26,6 +29,8 @@ class ConfigComponent {
         // use .constructor because we want the current class's static fields
         const required = this.constructor.requiredProps;
         const optional = this.constructor.optionalProps;
+        if (required.length == 0 && optional.length == 0)
+            return;
         for (const prop in details)
             if (!required.includes(prop) && !optional.includes(prop))
                 throw new ConfigError(`prop '${prop}' is not allowed within ${this.key}`);
@@ -40,10 +45,6 @@ class VariableGroupComponent extends ConfigComponent {
     constructor(key, details, variableClass, varInitArg ) {
         super(key, details);
         this._loadDetails(details, variableClass, varInitArg);
-    }
-
-    _validateProps(_) {
-        // any name allowed
     }
 
     _loadDetails(details, variableClass, varInitArg) {
@@ -85,12 +86,19 @@ class ParamsComponent extends ConfigComponent {
     }
 }
 
-class ResolutionComponent extends ConfigComponent {
+
+class ResultsComponent extends VariableGroupComponent {
+    constructor(key, details, priorVariables) {
+        super(`${key}.results`, details, DerivedVariable, priorVariables);
+    }
+}
+
+class ResolutionComponent extends VariableGroupComponent {
     static requiredProps = ["next"];
     static optionalProps = ["announce", "action", "wait"];
 
-    constructor(parentKey, details) {
-        super(`${parentKey}.resolution`, details)
+    constructor(key, details, priorVariables) {
+        super(`${key}.resolution`, details, DerivedVariable, priorVariables);
     }
 
     _validateProps(details) {
@@ -99,20 +107,11 @@ class ResolutionComponent extends ConfigComponent {
         for (let prop of ResolutionComponent.optionalProps)
             if (prop in details)
                 return;
-        throw new ConfigError(`${this.key} must specify at least one of: announce, action, wait`);
+        throw new ConfigError(`${this.key} must specify at least one of { announce, action, wait }`);
     }
 
 }
 
-class ResultsComponent extends ConfigComponent {
-    constructor(parentKey, details) {
-        super(`${parentKey}.results`, details)
-    }
-
-    _validateProps(_) {
-        // any props allowed
-    }
-}
 
 class StageComponent extends ConfigComponent {
     static requiredProps = ["label", "params", "results", "resolution"];
@@ -137,21 +136,6 @@ function test() {
     //     }
     // );
     
-    // const r = new ResolutionComponent(
-    //     "stageZ",
-    //     {
-    //         announce: "Hi",
-    //         next: "bar",
-    //     }
-    // );
-    
-    // const res = new ResultsComponent(
-    //     "stageQ",
-    //     {
-    //         a: "aaa",
-    //         b: "bbb",
-    //     }
-    // );
     
     const p = new ParamsComponent(
         "stageC",
@@ -163,7 +147,35 @@ function test() {
         }
     )
 
+    const results = new ResultsComponent(
+        "stageQ",
+        {
+            a: "6 * 7",
+            b: "'cake!'",
+        },
+        []
+    );
+
+    const res = new ResolutionComponent(
+        "stageZ",
+        {
+            announce: "Hi",
+            next: "bar",
+        },
+        []
+    );
+    
+
     console.dir(p.variables);
+    console.log();
+    console.dir(results.variables);
+    console.log();
+    console.dir(res.variables);
+    console.log();
+    console.log(results.variables.a.value);
+    console.log(results.variables.b.value);
+    console.log();
+    console.dir(p);
 }
 
 try {

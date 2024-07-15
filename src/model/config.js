@@ -1,95 +1,82 @@
 import { BoolVariable, DerivedVariable, RangeVariable, SelectVariable, StaticVariable } from "./variable.js";
 import { ConfigError } from "./error.js";
 
-// map param types to variable classes
-const VARTYPE_MAP  = {
+const VARIABLE_TYPE_MAP  = {
     "bool": BoolVariable,
     "range": RangeVariable,
     "select": SelectVariable,
     "static": StaticVariable,
 }
 
-// TODO refactoring this:
-// - stop storing key as a property, just pass to 
-//    _validateProps and _loadDetails()
-// 
+
 class ConfigComponent {
     static requiredProps = [];
     static optionalProps = [];
 
-    constructor(key, details) {
+    constructor(parentKey, details) {
         if (this.constructor == ConfigComponent) {
             throw Error("ConfigComponent is abstract");
         }
-        this.key = key;
-        this._validateProps(details);
+        this._validateProps(parentKey, details);
     }
 
-    _validateProps(details) {
-        // use .constructor because we want the current class's static fields
+    _validateProps(parentKey, details) {
         const required = this.constructor.requiredProps;
         const optional = this.constructor.optionalProps;
         if (required.length == 0 && optional.length == 0)
             return;
         for (const prop in details)
             if (!required.includes(prop) && !optional.includes(prop))
-                throw new ConfigError(`prop '${prop}' is not allowed within ${this.key}`);
+                throw new ConfigError(`prop '${prop}' is not allowed within ${key}`);
         for (const prop of required) {
             if (!(prop in details))
-                throw new ConfigError(`${this.key} is missing required prop '${prop}'`);
+                throw new ConfigError(`${parentKey} is missing required prop '${prop}'`);
         }
     }
 };
 
 class VariableGroupComponent extends ConfigComponent {
-    constructor(key, details, variableClass, varInitArg ) {
-        super(key, details);
-        this._loadDetails(details, variableClass, varInitArg);
+    constructor(parentKey, details, variableClass, varInitArg ) {
+        super(parentKey, details);
+        this._loadDetails(parentKey, details, variableClass, varInitArg);
     }
 
-    _loadDetails(details, variableClass, varInitArg) {
+    _loadDetails(parentKey, details, variableClass, varInitArg) {
         this.variables = {}
-        for (const varName in details) {
-            try {
-                this.variables[varName] = new variableClass(varName, details[varName], varInitArg);
-            } catch (e) {
-                if (e instanceof ConfigError)
-                    throw new ConfigError(`${this.key}.${varName} has invalid spec: ${e.message}`);
-                else
-                    throw e;
-            }
+        for (const variableName in details) {
+            const key = `${parentKey}.${variableName}`;
+            this.variables[variableName] = new variableClass(key, details[variableName], varInitArg);
         }
     }
 }
 
-class ParamsComponent extends ConfigComponent {
+class ParametersComponent extends ConfigComponent {
     static optionalProps = ["static", "range", "select", "bool"];
 
-    constructor(key, details) {
-        super(`${key}.params`, details);
-        this._loadDetails(details);
+    constructor(parentKey, details) {
+        const key = `${parentKey}.params`;
+        super(key, details);
+        this.variables = {};
+        this._loadDetails(key, details);
     }
 
-    _loadDetails(details) {
-        this.variables = {}
-        for (const varType in details) {
-            const key = `${this.key}.${varType}`
-            const varClass = VARTYPE_MAP[varType]
-            const groupDetails = details[varType];
-            const groupComponent = new VariableGroupComponent(key, groupDetails, varClass);
-            for (const varName in groupComponent.variables) {
-                if (varName in this.variables)
-                    throw new ConfigError(`Duplicate identifier '${varName}' in ${key}`);
-                this.variables[varName] = groupComponent.variables[varName];
+    _loadDetails(key, details) {
+        for (const variableType in details) {
+            const groupComponent = new VariableGroupComponent(
+                `${key}.${variableType}`,
+                details[variableType],
+                VARIABLE_TYPE_MAP[variableType],
+            );
+            for (const variableName in groupComponent.variables) {
+                this.variables[variableName] = groupComponent.variables[variableName];
             }
         }
     }
 }
 
-
-class ResultsComponent extends VariableGroupComponent {
+class CalculationsComponent extends VariableGroupComponent {
     constructor(key, details, priorVariables) {
-        super(`${key}.results`, details, DerivedVariable, priorVariables);
+        super(`${key}.calculations`, details, DerivedVariable, priorVariables);
     }
 }
 
@@ -101,13 +88,14 @@ class ResolutionComponent extends VariableGroupComponent {
         super(`${key}.resolution`, details, DerivedVariable, priorVariables);
     }
 
-    _validateProps(details) {
-        super._validateProps(details);
+    _validateProps(key, details) {
+        super._validateProps(key, details);
         // extra check: "optional" props here are really "at least one of"
         for (let prop of ResolutionComponent.optionalProps)
             if (prop in details)
                 return;
-        throw new ConfigError(`${this.key} must specify at least one of { announce, action, wait }`);
+        throw new ConfigError(
+            `${key} must specify at least one: ${ResolutionComponent.optionalProps.join(', ')}`);
     }
 
 }
@@ -137,17 +125,17 @@ function test() {
     // );
     
     
-    const p = new ParamsComponent(
+    const p = new ParametersComponent(
         "stageC",
         {
             static: { count: 11, color: "blue" },
-            range: { span: [2, 7] },
+            range: { span: [2, 7], span: [1, 3] },
             bool: { isFluffy: 0.3 },
             select: { size: [3, 5, 7, 9, 12]}
         }
     )
 
-    const results = new ResultsComponent(
+    const calc = new CalculationsComponent(
         "stageQ",
         {
             a: "6 * 7",
@@ -166,16 +154,12 @@ function test() {
     );
     
 
-    console.dir(p.variables);
-    console.log();
-    console.dir(results.variables);
-    console.log();
-    console.dir(res.variables);
-    console.log();
-    console.log(results.variables.a.value);
-    console.log(results.variables.b.value);
-    console.log();
     console.dir(p);
+    console.log();
+    console.dir(calc);
+    console.log();
+    console.dir(res);
+    console.log();
 }
 
 try {

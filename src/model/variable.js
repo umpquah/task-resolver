@@ -6,6 +6,7 @@ export class AbstractVariable {
             throw Error("AbstractVariable cannot be instantiated")
         }
         this.key = key;
+        this.name = key.split(".").slice(-1)[0];
         this.validateSpec(spec);
         this.loadSpec(spec);
         this.refresh();

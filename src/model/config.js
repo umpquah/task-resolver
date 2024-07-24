@@ -8,6 +8,11 @@ const VARIABLE_TYPE_MAP  = {
     "static": StaticVariable,
 }
 
+const RESERVED_NAMES = [
+    "static", "range", "select", "bool", "next",
+    "announce", "action", "wait"
+];
+
 
 class ConfigComponent {
     static requiredProps = [];
@@ -27,11 +32,20 @@ class ConfigComponent {
             return;
         for (const prop in details)
             if (!required.includes(prop) && !optional.includes(prop))
-                throw new ConfigError(`prop '${prop}' is not allowed within ${key}`);
+                throw new ConfigError(`${parentKey}: '${prop}' entry not allowed here`);
         for (const prop of required) {
             if (!(prop in details))
-                throw new ConfigError(`${parentKey} is missing required prop '${prop}'`);
+                throw new ConfigError(`${parentKey}: Missing required '${prop}' entry`);
         }
+    }
+
+    _validateVariableName(parentKey, variableName) {
+        const required = this.constructor.requiredProps;
+        const optional = this.constructor.optionalProps;
+        if (required.includes(variableName) || optional.includes(variableName))
+            return;
+        if (RESERVED_NAMES.includes(variableName))
+            throw new ConfigError(`${parentKey}: Cannot use reserved name '${variableName}' here`);
     }
 };
 
@@ -42,60 +56,59 @@ class VariableGroupComponent extends ConfigComponent {
     }
 
     _loadDetails(parentKey, details, variableClass, varInitArg) {
-        this.variables = {}
         for (const variableName in details) {
+            this._validateVariableName(parentKey, variableName);
             const key = `${parentKey}.${variableName}`;
-            this.variables[variableName] = new variableClass(key, details[variableName], varInitArg);
+            this[variableName] = new variableClass(key, details[variableName], varInitArg);
         }
     }
 }
 
-class ParametersComponent extends ConfigComponent {
+export class ParametersComponent extends ConfigComponent {
     static optionalProps = ["static", "range", "select", "bool"];
 
     constructor(parentKey, details) {
         const key = `${parentKey}.params`;
         super(key, details);
-        this.variables = {};
         this._loadDetails(key, details);
     }
 
-    _loadDetails(key, details) {
+    _loadDetails(parentKey, details) {
         for (const variableType in details) {
             const groupComponent = new VariableGroupComponent(
-                `${key}.${variableType}`,
+                `${parentKey}.${variableType}`,
                 details[variableType],
                 VARIABLE_TYPE_MAP[variableType],
             );
-            for (const variableName in groupComponent.variables) {
-                this.variables[variableName] = groupComponent.variables[variableName];
+            for (const variableName in groupComponent) {
+                this[variableName] = groupComponent[variableName];
             }
         }
     }
 }
 
-class CalculationsComponent extends VariableGroupComponent {
-    constructor(key, details, priorVariables) {
-        super(`${key}.calculations`, details, DerivedVariable, priorVariables);
+export class CalculationsComponent extends VariableGroupComponent {
+    constructor(parentKey, details, priorVariables) {
+        super(`${parentKey}.calculations`, details, DerivedVariable, priorVariables);
     }
 }
 
-class ResolutionComponent extends VariableGroupComponent {
+export class ResolutionComponent extends VariableGroupComponent {
     static requiredProps = ["next"];
     static optionalProps = ["announce", "action", "wait"];
 
-    constructor(key, details, priorVariables) {
-        super(`${key}.resolution`, details, DerivedVariable, priorVariables);
+    constructor(parentKey, details, priorVariables) {
+        super(`${parentKey}.resolution`, details, DerivedVariable, priorVariables);
     }
 
-    _validateProps(key, details) {
-        super._validateProps(key, details);
-        // extra check: "optional" props here are really "at least one of"
+    _validateProps(parentKey, details) {
+        super._validateProps(parentKey, details);
+        // extra check: "optional" props here are actually "at least one of"
         for (let prop of ResolutionComponent.optionalProps)
             if (prop in details)
                 return;
         throw new ConfigError(
-            `${key} must specify at least one: ${ResolutionComponent.optionalProps.join(', ')}`);
+            `${parentKey} must specify at least one: ${ResolutionComponent.optionalProps.join(', ')}`);
     }
 
 }
@@ -112,66 +125,5 @@ class StageComponent extends ConfigComponent {
 
 }
 
-function test() {
-    // const s = new StageComponent(
-    //     "stageA",
-    //     {
-    //         initialStage: true, // Error if set for more than one
-    //         label: "Stage A",
-    //         params: "paramstuff",
-    //         results: "....",
-    //         resolution: "resolution",
-    //     }
-    // );
-    
-    
-    const p = new ParametersComponent(
-        "stageC",
-        {
-            static: { count: 11, color: "blue" },
-            range: { span: [2, 7], span: [1, 3] },
-            bool: { isFluffy: 0.3 },
-            select: { size: [3, 5, 7, 9, 12]}
-        }
-    )
-
-    const calc = new CalculationsComponent(
-        "stageQ",
-        {
-            a: "6 * 7",
-            b: "'cake!'",
-        },
-        []
-    );
-
-    const res = new ResolutionComponent(
-        "stageZ",
-        {
-            announce: "Hi",
-            next: "bar",
-        },
-        []
-    );
-    
-
-    console.dir(p);
-    console.log();
-    console.dir(calc);
-    console.log();
-    console.dir(res);
-    console.log();
-}
-
-try {
-    test();
-} catch (e) {
-    if (e instanceof ConfigError) {
-        console.log("Configuration failed.");
-        console.log(e.message);
-    }
-    else
-        throw e;
-}
-  
 
 

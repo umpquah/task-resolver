@@ -1,144 +1,4 @@
-
-class ConfigError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = "ConfigError";
-    }
-}
-
-class AbstractVariable {
-    constructor(name, spec) {
-        if(this.constructor == AbstractVariable) {
-            throw new Error("AbstractVariable cannot be instantiated");
-        };
-        this.name = name;
-        this.spec = spec;
-        this.refresh(); // run initial randomization as needed
-    }
-
-    refresh() {
-        // no op
-    }
-
-    get value() {
-        return this._value;
-    }
-}
-
-class StaticVariable extends AbstractVariable {
-    constructor(name, spec) {
-        super(name, spec);
-     
-        this._value = spec;
-    }
-
-}
-
-class RangeVariable extends AbstractVariable {
-    refresh() {
-        // TODO: Check spec has valid values
-        const [min, max] = this.spec;
-        this._value = Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-}
-
-class BoolVariable extends AbstractVariable {
-    refresh() {
-        // TODO: Check spec has valid value
-        const prob = this.spec;
-        this._value = (Math.random() < prob);
-    }
-}
-
-class SelectVariable extends AbstractVariable {
-    refresh() {
-        // TODO: Check spec has valid value
-        const options = this.spec;
-        const r = Math.floor(Math.random() * options.length);
-        this._value = options[r];
-    }
-}
-
-class DerivedVariable extends AbstractVariable {
-    constructor(name, spec, derivedFromVariables) {
-        super(name, spec);
-        const variableNames = derivedFromVariables.map((v) => (v.name));
-        const fnBody = `return ${spec};`;
-        const fn = new Function(...variableNames, fnBody);
-        this.value = fn();
-    }
-
-    refresh() {
-        // N/A
-    }
-}
-
-const PARAM_TYPES = {
-    "static": StaticVariable,
-    "range": RangeVariable,
-    "bool": BoolVariable,
-    "select": SelectVariable,
-}
-const STAGE_PROPS = ["initialStage", "label", "parameters", "results", "resolution"];
-const RESOLUTION_PROPS = ["announce", "action", "wait", "next"];
-const RESERVED_NAMES = Object.keys(PARAM_TYPES).concat(STAGE_PROPS).concat(RESOLUTION_PROPS);
-
-class Stage {
-    constructor({ initialStage, label, params, results, resolution }) {
-        this.initialStage = initialStage;
-        this.label = label;
-        this._variables = {};
-        this._setup_params(params);
-        // this._setup_actions(actions);
-        // this._result = result;
-        this.refresh();
-    }
-
-    _setup_params(params) {
-        for (const type in params) {
-            if (!(type in PARAM_TYPES)) {
-                throw new ConfigError(`Invalid param type '${type}'`)
-            }
-        }
-        for (const param_type in PARAM_TYPES) {
-            const variable_cls = PARAM_TYPES[param_type];
-            for (const [name, spec] of Object.entries(params[param_type])) {
-                if (RESERVED_NAMES.includes(name)) {
-                    throw new ConfigError(`Param names cannot include reserved word '${name}'`);
-                }
-                this._variables[name] = new variable_cls(name, spec);
-            }
-        }
-    }
-
-    // _setup_actions(actions) {
-    //     this._actions = {};
-    //     for (const type in actions) {
-    //         if (!ACTION_TYPES.includes(type)) {
-    //             throw new ConfigError(`Invalid action type '${type}'`)
-    //         }
-    //     }
-    // }
-
-
-
-    refresh() {
-        Object.values(this._variables).forEach(p => { p.refresh() });
-        this._result_fn = this._build_fn(this._variables, this._result)
-    }
-
-    get current_params() {
-        let out = {};
-        for (const param_name in this._params) {
-            out[param_name] = this._params[param_name].value;
-        }
-        return out;
-    }
-    
-    get result() {
-        return this._result_fn();
-    }
-}
+import { ParametersComponent, CalculationsComponent, ResolutionComponent } from "./src/model/config.js";
 
 
 const stages = {
@@ -161,11 +21,11 @@ const stages = {
                 goRight: 0.8,
             },
         },
-        results: {
-            distance: "baseAmount * steps",
+        calculations: {
+            dist: "baseAmount * dist",
         },
         resolution: {
-            report: "`Go ${distance} ${color} steps ${goRight ? 'right' : 'left'}`",
+            instruct: "`Go ${dist} ${color} steps ${goRight ? 'right' : 'left'}`",
             next: "goRight ? 'stageB' : 'stageC'",
         }
     },
@@ -177,23 +37,56 @@ const stages = {
     }
 };
 
-// const stage = new Stage(stages.stageA)
 
-// for (let i = 0; i < 10; i++) {
-//     // console.dir(stage.current_params);
-//     console.log(stage.result);
-//     // console.log();
-//     stage.refresh();
-// }
+function test() {
+    // const s = new StageComponent(
+    //     "stageA",
+    //     {
+    //         initialStage: true, // Error if set for more than one
+    //         label: "Stage A",
+    //         params: "paramstuff",
+    //         results: "....",
+    //         resolution: "resolution",
+    //     }
+    // );
+    
+    
+    const p = new ParametersComponent(
+        "stageA",
+        {
+            static: { count: 11, color: "blue" },
+            range: { span: [2, 7] },
+            bool: { isFluffy: 0.3 },
+            select: { size: [3, 5, 7, 9, 12]}
+        }
+    )
 
-// const v = new AbstractVariable("age", "blah");
-let dozens = new RangeVariable("dozens", [2, 7]);
-let base = new StaticVariable("base", 12);
+    const calc = new CalculationsComponent(
+        "stageA",
+        {
+            dessert: "size + '-inch ' + color + ' cake'",
+        },
+        [p.size, p.color],
+    );
 
-let eggs = new DerivedVariable("eggs", "base * dozens", [dozens, base])
+    const res = new ResolutionComponent(
+        "stageA",
+        {
+            announce: "Hi",
+            next: "bar",
+        },
+        []
+    );
+    
 
-for (let i = 0; i < 10; i++) {
-    console.log(`${dozens.value} ${base.value} --> ${eggs.value}`);
-    dozens.refresh();
-    base.refresh();
+    console.dir(p);
+    console.log();
+    console.dir(calc);
+    console.log();
+    console.dir(res);
+    console.log();
+    console.log("calc.dessert.value: " + calc.dessert.value)
 }
+
+
+test();

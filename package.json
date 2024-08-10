@@ -1,5 +1,6 @@
 {
   "name": "task-resolver",
+  "type": "module",
   "version": "0.2",
   "private": true,
   "dependencies": {

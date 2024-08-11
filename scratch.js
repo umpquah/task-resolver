@@ -1,91 +1,64 @@
-import { ParametersComponent, CalculationsComponent, ResolutionComponent } from "./src/model/config.js";
-
-
-const stages = {
-    stageA: {
-        initialStage: true, // Error if set for more than one
-        label: "Stage A",
-        parameters: {
-            static: {
-                baseAmount: 3,
-                units: ["step", "steps"],
-                directions: ["left", "right"],
-            },
-            range: {
-                steps: [1, 11],
-            },
-            select: {
-                color: ["red", "blue", "green", "purple"],
-            },
-            bool: {
-                goRight: 0.8,
-            },
-        },
-        calculations: {
-            dist: "baseAmount * dist",
-        },
-        resolution: {
-            instruct: "`Go ${dist} ${color} steps ${goRight ? 'right' : 'left'}`",
-            next: "goRight ? 'stageB' : 'stageC'",
-        }
-    },
-    stageB: {
-        label: "Stage B",
-    },
-    stageC: {
-        label: "Stage C",
-    }
-};
-
+import GameState from "./src/model/game-state.js";
 
 function test() {
-    // const s = new StageComponent(
-    //     "stageA",
-    //     {
-    //         initialStage: true, // Error if set for more than one
-    //         label: "Stage A",
-    //         params: "paramstuff",
-    //         results: "....",
-    //         resolution: "resolution",
-    //     }
-    // );
-    
-    
-    const p = new ParametersComponent(
-        "stageA",
-        {
-            static: { count: 11, color: "blue" },
-            range: { span: [2, 7] },
-            bool: { isFluffy: 0.3 },
-            select: { size: [3, 5, 7, 9, 12]}
+
+    const gameConfig = {
+        stageA: {
+            initialStage: true, 
+            label: "Stage A",
+            parameters: {
+                static: { num: 17, word: "Tango" },
+                range: { size: [1, 10], steps: [2, 7] },
+                bool: { hasSprinkles: 0.5 },
+                select: { time: [3, 5, 7, 9, 12]}
+            },
+            calculations: {
+                dessert: "size + '-inch cake'",
+                dist: "steps * 3",
+                topping: "hasSprinkles ? 'with sprinkles' : '(plain)'",
+            },
+            resolution: {
+                announce: "`Agent ${word}-${num}, you get to eat a ${dessert} ${topping}`",
+                action: "`Walk ${steps} steps (${dist} feet)`",
+                wait: "time * 100",
+                next: "'stageB'",
+            }
+        },
+        stageB: {
+            label: "Stage B",
+            parameters: {
+                static: { answer: 42 },
+            },
+            calculations: null,
+            resolution: {
+                announce: "`The answer is ${answer}`",
+                next: "'stageA'"
+            }
         }
-    )
+    };
 
-    const calc = new CalculationsComponent(
-        "stageA",
-        {
-            dessert: "size + '-inch ' + color + ' cake'",
-        },
-        [p.size, p.color],
-    );
+    const state = new GameState(gameConfig);
+    for (let i = 0; i < 5; i++) {
+        const result = state.runStage();
+        console.log(result);
+        console.log();
+    }
 
-    const res = new ResolutionComponent(
-        "stageA",
-        {
-            announce: "Hi",
-            next: "bar",
-        },
-        []
-    );
+    // const stageA = new StageConfig("stageA", stageAconfig);
+    // console.dir(params);
+    // console.log();
+    // console.dir(calc);
+    // console.log();
+    // console.dir(res);
+    // console.log();
+    // console.log("params.size.value: " + params.size.value)
+    // console.log("params.dist.value: " + params.dist.value);
+    // console.log("calc.dessert.value: " + calc.dessert.value);
+    // console.log("res.announce.value: " + res.announce.value);
+    // console.log("res.action.value: " + res.action.value);
+    // console.log("params.isFluffy.value: " + params.isFluffy.value);
+    // console.log("res.next.value: " + res.next.value);
     
-
-    console.dir(p);
-    console.log();
-    console.dir(calc);
-    console.log();
-    console.dir(res);
-    console.log();
-    console.log("calc.dessert.value: " + calc.dessert.value)
 }
 
 

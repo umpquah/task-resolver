@@ -1,20 +1,14 @@
-import { BoolVariable, DerivedVariable, RangeVariable, SelectVariable, StaticVariable } from "./variable.js";
+import { DerivedVariable, variableClassForParameterType } from "./variable.js";
 import { ConfigError } from "./error.js";
 
-const VARIABLE_TYPE_MAP  = {
-    "bool": BoolVariable,
-    "range": RangeVariable,
-    "select": SelectVariable,
-    "static": StaticVariable,
-}
 
 const RESERVED_NAMES = [
     "static", "range", "select", "bool", "next",
-    "announce", "action", "wait"
+    "resolution", "announce", "action", "wait", "next",
 ];
 
 
-class ConfigComponent {
+export class ConfigComponent {
     static requiredProps = [];
     static optionalProps = [];
 
@@ -49,7 +43,7 @@ class ConfigComponent {
     }
 };
 
-class VariableGroupComponent extends ConfigComponent {
+class VariableGroupConfig extends ConfigComponent {
     constructor(parentKey, details, variableClass, varInitArg ) {
         super(parentKey, details);
         this._loadDetails(parentKey, details, variableClass, varInitArg);
@@ -64,7 +58,7 @@ class VariableGroupComponent extends ConfigComponent {
     }
 }
 
-export class ParametersComponent extends ConfigComponent {
+export class ParametersConfig extends ConfigComponent {
     static optionalProps = ["static", "range", "select", "bool"];
 
     constructor(parentKey, details) {
@@ -74,26 +68,32 @@ export class ParametersComponent extends ConfigComponent {
     }
 
     _loadDetails(parentKey, details) {
-        for (const variableType in details) {
-            const groupComponent = new VariableGroupComponent(
-                `${parentKey}.${variableType}`,
-                details[variableType],
-                VARIABLE_TYPE_MAP[variableType],
+        for (const parameterType in details) {
+            const groupConfig = new VariableGroupConfig(
+                `${parentKey}.${parameterType}`,
+                details[parameterType],
+                variableClassForParameterType(parameterType),
             );
-            for (const variableName in groupComponent) {
-                this[variableName] = groupComponent[variableName];
+            for (const variableName in groupConfig) {
+                this[variableName] = groupConfig[variableName];
             }
         }
     }
+
+    refresh() {
+        Object.values(this).forEach((paramVariable) => {
+            paramVariable.refresh();
+        })
+    }
 }
 
-export class CalculationsComponent extends VariableGroupComponent {
+export class CalculationsConfig extends VariableGroupConfig {
     constructor(parentKey, details, priorVariables) {
         super(`${parentKey}.calculations`, details, DerivedVariable, priorVariables);
     }
 }
 
-export class ResolutionComponent extends VariableGroupComponent {
+export class ResolutionConfig extends VariableGroupConfig {
     static requiredProps = ["next"];
     static optionalProps = ["announce", "action", "wait"];
 
@@ -104,7 +104,7 @@ export class ResolutionComponent extends VariableGroupComponent {
     _validateProps(parentKey, details) {
         super._validateProps(parentKey, details);
         // extra check: "optional" props here are actually "at least one of"
-        for (let prop of ResolutionComponent.optionalProps)
+        for (let prop of ResolutionConfig.optionalProps)
             if (prop in details)
                 return;
         throw new ConfigError(
@@ -112,18 +112,5 @@ export class ResolutionComponent extends VariableGroupComponent {
     }
 
 }
-
-
-class StageComponent extends ConfigComponent {
-    static requiredProps = ["label", "params", "results", "resolution"];
-    static optionalProps = ["initialStage"];
-
-    _loadProps(details) {
-        this.initialStage = ("initialStage" in details);
-        this.label = details.label;
-    }
-
-}
-
 
 

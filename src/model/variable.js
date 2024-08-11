@@ -1,6 +1,7 @@
 import { ConfigError } from "./error.js";
 
-export class AbstractVariable {
+
+class AbstractVariable {
     constructor(key, spec) {
         if (this.constructor == AbstractVariable) {
             throw Error("AbstractVariable cannot be instantiated")
@@ -21,13 +22,13 @@ export class AbstractVariable {
     }
 }
 
-export class StaticVariable extends AbstractVariable {
+class StaticVariable extends AbstractVariable {
     loadSpec(spec) {
         this.value = spec
     }
 }
 
-export class RangeVariable extends AbstractVariable {
+class RangeVariable extends AbstractVariable {
     loadSpec([min, max]) {
         this.min = min;
         this.max = max;
@@ -48,7 +49,7 @@ export class RangeVariable extends AbstractVariable {
     }
 }
 
-export class BoolVariable extends AbstractVariable {
+class BoolVariable extends AbstractVariable {
     loadSpec(spec) {
         this.probability = spec;
     }
@@ -65,7 +66,7 @@ export class BoolVariable extends AbstractVariable {
     }
 }
 
-export class SelectVariable extends AbstractVariable {
+class SelectVariable extends AbstractVariable {
     loadSpec(spec) {
         this.options = spec;
     }
@@ -95,3 +96,13 @@ export class DerivedVariable extends AbstractVariable {
     }
 }
 
+const VARIABLE_TYPE_MAP  = {
+    "bool": BoolVariable,
+    "range": RangeVariable,
+    "select": SelectVariable,
+    "static": StaticVariable,
+}
+
+export const variableClassForParameterType = (paramType) => {
+    return VARIABLE_TYPE_MAP[paramType];
+}

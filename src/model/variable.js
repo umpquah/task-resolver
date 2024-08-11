@@ -22,7 +22,7 @@ class AbstractVariable {
     }
 }
 
-class StaticVariable extends AbstractVariable {
+export class StaticVariable extends AbstractVariable {
     loadSpec(spec) {
         this.value = spec
     }

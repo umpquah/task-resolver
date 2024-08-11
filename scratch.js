@@ -14,12 +14,12 @@ function test() {
             },
             calculations: {
                 dessert: "size + '-inch cake'",
-                dist: "steps * 3",
+                dist: "square(steps)",
                 topping: "hasSprinkles ? 'with sprinkles' : '(plain)'",
             },
             resolution: {
                 announce: "`Agent ${word}-${num}, you get to eat a ${dessert} ${topping}`",
-                action: "`Walk ${steps} steps (${dist} feet)`",
+                action: "`Walk ${steps} steps in a square (${dist} sq.ft.)`",
                 wait: "time * 100",
                 next: "'stageB'",
             }

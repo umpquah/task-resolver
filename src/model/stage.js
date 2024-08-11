@@ -1,4 +1,6 @@
 import { ConfigComponent, ParametersConfig, CalculationsConfig, ResolutionConfig } from "./config.js";
+import builtInFunctions from "./builtins.js";
+import { buildQueries } from "@testing-library/react";
 
 export default class Stage extends ConfigComponent {
     static requiredProps = ["label", "parameters", "calculations", "resolution"];
@@ -19,7 +21,7 @@ export default class Stage extends ConfigComponent {
         this.calculations = new CalculationsConfig(
             parentKey,
             details.calculations,
-            Object.values(this.parameters)
+            Object.values(this.parameters).concat(builtInFunctions())
         );
         this.resolution = new ResolutionConfig(
             parentKey,

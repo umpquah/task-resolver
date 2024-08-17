@@ -1,12 +1,11 @@
 import { DerivedVariable, variableClassForParameterType } from "./variable.js";
 import { ConfigError } from "./error.js";
 
-
 const RESERVED_NAMES = [
-    "static", "range", "select", "bool", "next",
-    "resolution", "announce", "action", "wait", "next",
+    "parameters", "calculations", "resolution",
+    "static", "range", "select", "bool",
+    "announce", "action", "next",
 ];
-
 
 export class ConfigComponent {
     static requiredProps = [];
@@ -39,7 +38,7 @@ export class ConfigComponent {
         if (required.includes(variableName) || optional.includes(variableName))
             return;
         if (RESERVED_NAMES.includes(variableName))
-            throw new ConfigError(`${parentKey}: Cannot use reserved name '${variableName}' here`);
+            throw new ConfigError(`${parentKey}: Invalid use of reserved name '${variableName}'`);
     }
 };
 
@@ -75,6 +74,8 @@ export class ParametersConfig extends ConfigComponent {
                 variableClassForParameterType(parameterType),
             );
             for (const variableName in groupConfig) {
+                if (variableName in this)
+                    throw new ConfigError(`Duplicate use of '${variableName}'`);
                 this[variableName] = groupConfig[variableName];
             }
         }

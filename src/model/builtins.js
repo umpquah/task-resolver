@@ -1,15 +1,11 @@
 import { StaticVariable } from "./variable.js"
 
-const BUILTIN_FUNCTIONS = {
-    formatWithUnits: (amount, singularUnit, pluralUnit) => {
-        return `${amount} ${amount === 1 ? singularUnit : pluralUnit}`;
-    },
-    square: (x) => x * x,
-};
+const BUILTIN_FUNCTIONS = [
+    new StaticVariable("formatWithUnits", (amount, singularUnit, pluralUnit) => (
+        `${amount} ${amount === 1 ? singularUnit : pluralUnit}`
+    )),
+];
 
-export default function builtInFunctions() {
-    return Object.keys(BUILTIN_FUNCTIONS).map((name) => (
-        new StaticVariable(name, BUILTIN_FUNCTIONS[name])
-    ));
-}
+export default BUILTIN_FUNCTIONS;
+
 

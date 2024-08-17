@@ -1,19 +1,29 @@
 import { ConfigComponent, ParametersConfig, CalculationsConfig, ResolutionConfig } from "./config.js";
-import builtInFunctions from "./builtins.js";
-import { buildQueries } from "@testing-library/react";
+import BUILTIN_FUNCTIONS from "./builtins.js";
+import { ConfigError } from "./error.js";
+
+
+const StageState = Object.freeze({
+    INITIAL: Symbol("initial"),
+    WAITING: Symbol("waitin"),
+    ACTING: Symbol("acting"),
+    WAITING: Symbol("waiting"),
+});
 
 export default class Stage extends ConfigComponent {
     static requiredProps = ["label", "parameters", "calculations", "resolution"];
-    static optionalProps = ["initialStage"];
+    static optionalProps = ["initial"];
 
     constructor(parentKey, details) {
         super(parentKey, details);
         this._loadDetails(parentKey, details);
+        this.key = parentKey;
+        this.state = StageState.INITIAL;
     }
 
     _loadDetails(parentKey, details) {
         this.label = details.label;
-        this.initialStage = details.initialStage;
+        this.isInitial = details.initial;
         this.parameters = new ParametersConfig(
             parentKey,
             details.parameters
@@ -21,13 +31,35 @@ export default class Stage extends ConfigComponent {
         this.calculations = new CalculationsConfig(
             parentKey,
             details.calculations,
-            Object.values(this.parameters).concat(builtInFunctions())
+            Object.values(this.parameters).concat(BUILTIN_FUNCTIONS)
         );
+        // Check for duplicates
+        const parameterNames = Object.values(this.parameters).map(p => p.name);
+        Object.values(this.calculations).forEach((calc) => {
+            if (parameterNames.includes(calc.name))
+                throw new ConfigError(`Duplicate use of '${calc.name}'`);
+        });
         this.resolution = new ResolutionConfig(
             parentKey,
             details.resolution,
             Object.values(this.parameters).concat(Object.values(this.calculations))
         );
+        this.results = null;
+    }
+
+    resolve() {
+        this.results = {};
+        Object.keys(this.resolution).forEach((prop) => {
+            if (prop !== "next")
+                this.results[prop] = this.resolution[prop].value;
+        });
+        return this.resolution.next.value;
+    }
+
+    refresh() {
+        this.parameters.refresh();
+        this.results = null;
+        this.next = null;
     }
 
     show() {
@@ -39,7 +71,4 @@ export default class Stage extends ConfigComponent {
         })
     }
 
-    refresh() {
-        this.parameters.refresh();
-    }
 }

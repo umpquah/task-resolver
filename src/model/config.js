@@ -19,27 +19,18 @@ export class ConfigComponent {
     }
 
     _validateProps(parentKey, details) {
-        const required = this.constructor.requiredProps;
-        const optional = this.constructor.optionalProps;
-        if (required.length == 0 && optional.length == 0)
-            return;
-        for (const prop in details)
-            if (!required.includes(prop) && !optional.includes(prop))
-                throw new ConfigError(`${parentKey}: '${prop}' entry not allowed here`);
-        for (const prop of required) {
+        const {requiredProps, optionalProps} = this.constructor;
+        const allowedProps = [...requiredProps, ...optionalProps];
+        for (const prop of requiredProps) {
             if (!(prop in details))
                 throw new ConfigError(`${parentKey}: Missing required '${prop}' entry`);
         }
+        for (const prop in details)
+            if (!allowedProps.includes(prop))
+                throw new ConfigError(`${parentKey}: '${prop}' entry not allowed here`);
     }
 
-    _validateVariableName(parentKey, variableName) {
-        const required = this.constructor.requiredProps;
-        const optional = this.constructor.optionalProps;
-        if (required.includes(variableName) || optional.includes(variableName))
-            return;
-        if (RESERVED_NAMES.includes(variableName))
-            throw new ConfigError(`${parentKey}: Invalid use of reserved name '${variableName}'`);
-    }
+
 };
 
 class VariableGroupConfig extends ConfigComponent {
@@ -54,6 +45,15 @@ class VariableGroupConfig extends ConfigComponent {
             const key = `${parentKey}.${variableName}`;
             this[variableName] = new variableClass(key, details[variableName], varInitArg);
         }
+    }
+
+    _validateVariableName(parentKey, variableName) {
+        const required = this.constructor.requiredProps;
+        const optional = this.constructor.optionalProps;
+        if (required.includes(variableName) || optional.includes(variableName))
+            return;
+        if (RESERVED_NAMES.includes(variableName))
+            throw new ConfigError(`${parentKey}: Invalid use of reserved name '${variableName}'`);
     }
 }
 

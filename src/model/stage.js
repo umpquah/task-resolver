@@ -5,9 +5,9 @@ import { ConfigError } from "./error.js";
 
 const StageState = Object.freeze({
     INITIAL: Symbol("initial"),
-    WAITING: Symbol("waitin"),
-    ACTING: Symbol("acting"),
     WAITING: Symbol("waiting"),
+    ACTING: Symbol("acting"),
+    FINISHED: Symbol("finished"),
 });
 
 export default class Stage extends ConfigComponent {
@@ -18,7 +18,7 @@ export default class Stage extends ConfigComponent {
         super(parentKey, details);
         this._loadDetails(parentKey, details);
         this.key = parentKey;
-        this.state = StageState.INITIAL;
+        this.refresh();
     }
 
     _loadDetails(parentKey, details) {
@@ -44,7 +44,6 @@ export default class Stage extends ConfigComponent {
             details.resolution,
             Object.values(this.parameters).concat(Object.values(this.calculations))
         );
-        this.results = null;
     }
 
     resolve() {
@@ -60,6 +59,8 @@ export default class Stage extends ConfigComponent {
         this.parameters.refresh();
         this.results = null;
         this.next = null;
+        this.state = StageState.INITIAL;
+        this.
     }
 
     show() {

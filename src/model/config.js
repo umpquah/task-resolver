@@ -20,26 +20,22 @@ export class ConfigComponent {
 
     _validateProps(parentKey, details) {
         const {requiredProps, optionalProps} = this.constructor;
-        const allowedProps = [...requiredProps, ...optionalProps];
+        const allMentionedProps = [...requiredProps, ...optionalProps];
+        if (allMentionedProps.length == 0)
+            return;
         for (const prop of requiredProps) {
             if (!(prop in details))
                 throw new ConfigError(`${parentKey}: Missing required '${prop}' entry`);
         }
         for (const prop in details)
-            if (!allowedProps.includes(prop))
+            if (!allMentionedProps.includes(prop))
                 throw new ConfigError(`${parentKey}: '${prop}' entry not allowed here`);
     }
-
-
 };
 
 class VariableGroupConfig extends ConfigComponent {
     constructor(parentKey, details, variableClass, varInitArg ) {
         super(parentKey, details);
-        this._loadDetails(parentKey, details, variableClass, varInitArg);
-    }
-
-    _loadDetails(parentKey, details, variableClass, varInitArg) {
         for (const variableName in details) {
             this._validateVariableName(parentKey, variableName);
             const key = `${parentKey}.${variableName}`;
@@ -48,9 +44,8 @@ class VariableGroupConfig extends ConfigComponent {
     }
 
     _validateVariableName(parentKey, variableName) {
-        const required = this.constructor.requiredProps;
-        const optional = this.constructor.optionalProps;
-        if (required.includes(variableName) || optional.includes(variableName))
+        const {requiredProps, optionalProps} = this.constructor;
+        if ([...requiredProps, ...optionalProps].includes(variableName))
             return;
         if (RESERVED_NAMES.includes(variableName))
             throw new ConfigError(`${parentKey}: Invalid use of reserved name '${variableName}'`);
@@ -104,8 +99,6 @@ export class ResolutionConfig extends VariableGroupConfig {
 
     _validateProps(parentKey, details) {
         super._validateProps(parentKey, details);
-        // extra check: "optional" props here are actually "at least one of"
-        // and cannot have "action" and "wait" together.
         const propsPresent = ResolutionConfig.optionalProps.filter((prop) => (prop in details));
         if (propsPresent.length == 0) {
             throw new ConfigError(

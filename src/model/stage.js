@@ -60,7 +60,6 @@ export default class Stage extends ConfigComponent {
         this.results = null;
         this.next = null;
         this.state = StageState.INITIAL;
-        this.
     }
 
     show() {

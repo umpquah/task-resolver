@@ -42,7 +42,7 @@ export default class Stage extends ConfigComponent {
         this.resolution = new ResolutionConfig(
             parentKey,
             details.resolution,
-            Object.values(this.parameters).concat(Object.values(this.calculations))
+            [...this.parameters, ...this.calculations]
         );
     }
 

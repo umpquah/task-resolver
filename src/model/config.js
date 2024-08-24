@@ -105,13 +105,17 @@ export class ResolutionConfig extends VariableGroupConfig {
     _validateProps(parentKey, details) {
         super._validateProps(parentKey, details);
         // extra check: "optional" props here are actually "at least one of"
-        for (let prop of ResolutionConfig.optionalProps)
-            if (prop in details)
-                return;
-        throw new ConfigError(
-            `${parentKey} must specify at least one: ${ResolutionComponent.optionalProps.join(', ')}`);
+        // and cannot have "action" and "wait" together.
+        const propsPresent = ResolutionConfig.optionalProps.filter((prop) => (prop in details));
+        if (propsPresent.length == 0) {
+            throw new ConfigError(
+                `${parentKey} must specify at least one: ${ResolutionComponent.optionalProps.join(', ')}`
+            );
+        }
+        if (propsPresent.includes("action") && propsPresent.includes("wait")) {
+            throw new ConfigError(`${parentKey} must have at most one of {action, wait}`);
+        }
     }
-
 }
 
 

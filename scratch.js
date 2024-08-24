@@ -1,4 +1,4 @@
-import StageManager from "./src/model/state.js";
+import StageManager from "./src/model/stage-manager.js";
 
 function test() {
 
@@ -20,7 +20,6 @@ function test() {
             resolution: {
                 announce: "`Agent ${word}-${num}, you get to eat a ${dessert} ${topping}`",
                 action: "`Walk ${steps} steps (${dist} feet)`",
-                wait: "time * 100",
                 next: "'stageB'",
             },
         },

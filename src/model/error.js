@@ -4,3 +4,10 @@ export class ConfigError extends Error {
         this.name = "ConfigError";
     }
 }
+
+export class StageError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "StageError";
+    }
+}

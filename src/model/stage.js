@@ -1,9 +1,9 @@
 import { ConfigComponent, ParametersConfig, CalculationsConfig, ResolutionConfig } from "./config.js";
 import BUILTIN_FUNCTIONS from "./builtins.js";
-import { ConfigError } from "./error.js";
+import { ConfigError, StageError } from "./error.js";
 
 
-const StageState = Object.freeze({
+const StageStatus = Object.freeze({
     INITIAL: Symbol("initial"),
     WAITING: Symbol("waiting"),
     ACTING: Symbol("acting"),
@@ -42,24 +42,45 @@ export default class Stage extends ConfigComponent {
         this.resolution = new ResolutionConfig(
             parentKey,
             details.resolution,
-            [...this.parameters, ...this.calculations]
+            [...Object.values(this.parameters), ...Object.values(this.calculations)]
         );
     }
 
     resolve() {
         this.results = {};
         Object.keys(this.resolution).forEach((prop) => {
-            if (prop !== "next")
-                this.results[prop] = this.resolution[prop].value;
+            this.results[prop] = this.resolution[prop].value;
         });
-        return this.resolution.next.value;
     }
 
-    refresh() {
+    actionDone() {
+        if (!this.status != StageStatus.ACTING)
+            throw StageError(`${this.key}: actionDone() called without active action.`);
+        this._finish();
+    }
+
+    _tick() {
+        this._timer.ellapsed += 1;
+        if (this._timer.duration == this._timer.ellapsed) {
+            clearInterval(this._timer);
+            this._finish();
+        }
+    }
+
+    _startTimer(duration) {
+        this._timer = setInterval(this._tick.bind(this), 1000);
+        this.timer = {duration: duration, ellapsed: 0};
+    }
+
+    _finish() {
+        this.status = StageStatus.FINISHED;
+
+    }
+
+    _refresh() {
         this.parameters.refresh();
-        this.results = null;
-        this.next = null;
-        this.state = StageState.INITIAL;
+        this.state = {};
+        this.status = StageStatus.INITIAL;
     }
 
     show() {

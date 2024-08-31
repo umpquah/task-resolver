@@ -1,7 +1,6 @@
-import { ConfigComponent, ParametersConfig, CalculationsConfig, ResolutionConfig } from "./config.js";
-import BUILTIN_FUNCTIONS from "./builtins.js";
+import { CalculationsConfig, ConfigComponent, ParametersConfig, ResolutionConfig } from "./config/index.js";
 import { ConfigError, StageError } from "./error.js";
-
+import BUILTIN_FUNCTIONS from "./builtins.js";
 
 export const StageStatus = Object.freeze({
     INITIAL: "initial",

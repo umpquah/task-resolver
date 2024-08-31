@@ -3,7 +3,7 @@ import BUILTIN_FUNCTIONS from "./builtins.js";
 import { ConfigError, StageError } from "./error.js";
 
 
-const StageStatus = Object.freeze({
+export const StageStatus = Object.freeze({
     INITIAL: Symbol("initial"),
     WAITING: Symbol("waiting"),
     ACTING: Symbol("acting"),
@@ -18,7 +18,7 @@ export default class Stage extends ConfigComponent {
         super(parentKey, details);
         this._loadDetails(parentKey, details);
         this.key = parentKey;
-        this.refresh();
+        this._refresh();
     }
 
     _loadDetails(parentKey, details) {
@@ -46,16 +46,31 @@ export default class Stage extends ConfigComponent {
         );
     }
 
-    resolve() {
-        this.results = {};
-        Object.keys(this.resolution).forEach((prop) => {
-            this.results[prop] = this.resolution[prop].value;
-        });
+    _validateMethod(methodName, expectedStatus) {
+        if (this.status != expectedStatus) 
+            throw new StageError(`${this.key}: ${methodName}() at this time`);
     }
 
-    actionDone() {
-        if (!this.status != StageStatus.ACTING)
-            throw StageError(`${this.key}: actionDone() called without active action.`);
+    resolve() {
+        this._validateMethod("resolve", StageStatus.INITIAL);
+        let results = {}
+        if ("action" in this.resolution) {
+            this.status = StageStatus.ACTING;
+            results.action = this.resolution.action.value;
+        } else if ("wait" in this.resolution) {
+            this.status = StageStatus.WAITING;
+            results.wait = this.resolution.wait.value;
+        } else {
+            this.status = StageStatus.FINISHED;
+            this.next = this.resolution.next.value;
+        }
+        results.announce = this.resolution.announce.value;
+        results.status = this.status;
+        return results;
+    }
+
+    userActionDone() {
+        this._validateMethod("userActionDone", StageStatus.ACTING);
         this._finish();
     }
 
@@ -90,6 +105,7 @@ export default class Stage extends ConfigComponent {
                 console.log(`  ${key}: ${this[confType][key].value}`);
             });
         })
+
     }
 
 }

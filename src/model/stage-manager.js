@@ -23,34 +23,42 @@ export default class StageManager {
             throw new ConfigError("No stage specified as initial stage");
 
         this.activeStages = [this.initialStage];
-        this.stage = this.initialStage;
+        this.currentStage = this.initialStage;
     }
 
-    doStageResolution() {
-        const nextStageKey = this.stage.resolve();
-        this.nextStage = this.stages[nextStageKey];
+    resolveCurrentStage() {
+        const results = this.currentStage.resolve();
+        console.log("Stage resolution:");
+        Object.entries(results).forEach(([key, value]) => {
+            console.log(`  ${key}: ${value.toString()}`);
+        });
     }
 
-    doStageTransition() {
-        this.stage = this.nextStage;
-        this.stage.refresh();
-        this.nextStage = null;
-        if (this.stage === this.initialStage)
-            this.activeStages = [this.stage];
-        else
-            this.activeStages.push(this.stage);
+    // doStageTransition() {
+    //     this.stage = this.nextStage;
+    //     this.stage.refresh();
+    //     this.nextStage = null;
+    //     if (this.stage === this.initialStage)
+    //         this.activeStages = [this.stage];
+    //     else
+    //         this.activeStages.push(this.stage);
+    // }
+
+    _show(stage) {
+        console.log(`${stage.label}: ${stage.status.description}`);
+        if (stage.results) {
+            Object.keys(stage.results).forEach((key) => {
+                console.log(`  ${key}: ${stage.results[key]}`);
+            });
+        }
+    }
+    showCurrentStage() {
+        this._show(this.currentStage);
     }
 
-    show() {
+    showAllStages() {
         this.activeStages.forEach((stage) => {
-            console.log(stage.label);
-            if (stage.results) {
-                Object.keys(stage.results).forEach((key) => {
-                    console.log(`  ${key}: ${stage.results[key]}`);
-                });
-            } else {
-                console.log("  (Not resolved)");
-            }
+            this._show(stage);
         })
         console.log();
     }

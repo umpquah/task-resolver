@@ -1,4 +1,4 @@
-import { DerivedVariable, variableClassForParameterType } from "./variable.js";
+import { DerivedVariable, variableClassForParameterType } from "./variable/index.js";
 import { ConfigError } from "./error.js";
 
 const RESERVED_NAMES = [

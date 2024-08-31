@@ -2,9 +2,13 @@ import StageManager from "./src/model/stage-manager.js";
 
 function test() {
 
+    const line = () => {
+        console.log("=======================");
+    }
+
     const overallConfig = {
         stageA: {
-            initial: true, 
+            // initial: true, 
             label: "Stage A",
             parameters: {
                 static: {num: 17, word: "Tango"},
@@ -37,6 +41,7 @@ function test() {
             },
         },
         stageC: {
+            initial: true,
             label: "Stage C",
             parameters: {
                 range: { delay: [3, 7] },
@@ -50,40 +55,27 @@ function test() {
         },
     };
 
-    const state = new StageManager(overallConfig);
-    for (let i = 0; i < 6; i++) {
-        state.show();
-        console.log("=========================")
-        console.log();
-        state.doStageResolution();
-        state.show();
-        console.log("=========================")
-        console.log();
-        state.doStageTransition();
-    }
+    const manager = new StageManager(overallConfig);
+    manager.showCurrentStage();
+    line();
+    manager.resolveCurrentStage();
+    line();
+    manager.showCurrentStage();
 
+    
 
-    // for (let i = 0; i < 5; i++) {
-    //     const result = state.runStage();
-    //     console.log(result);
+    // for (let i = 0; i < 6; i++) {
+    //     state.show();
+    //     console.log("=========================")
     //     console.log();
+    //     state.doStageResolution();
+    //     state.show();
+    //     console.log("=========================")
+    //     console.log();
+    //     state.doStageTransition();
     // }
 
-    // const stageA = new StageConfig("stageA", stageAconfig);
-    // console.dir(params);
-    // console.log();
-    // console.dir(calc);
-    // console.log();
-    // console.dir(res);
-    // console.log();
-    // console.log("params.size.value: " + params.size.value)
-    // console.log("params.dist.value: " + params.dist.value);
-    // console.log("calc.dessert.value: " + calc.dessert.value);
-    // console.log("res.announce.value: " + res.announce.value);
-    // console.log("res.action.value: " + res.action.value);
-    // console.log("params.isFluffy.value: " + params.isFluffy.value);
-    // console.log("res.next.value: " + res.next.value);
-    
+
 }
 
 

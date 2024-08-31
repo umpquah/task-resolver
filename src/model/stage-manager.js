@@ -5,15 +5,12 @@ export default class StageManager {
     constructor(details) {
         const stageKeys = Object.keys(details);
         this.stages = {}
-        this.initialStage = null;
-        stageKeys.forEach((stageKey) => {
-            const stage = new Stage(
-                stageKey,
-                details[stageKey]
-            );
+        this.initialStageKey = null;
+        Object.entries(details).forEach(([stageKey, stageDetails]) => {
+            const stage = new Stage(stageKey, stageDetails);
             if (stage.isInitial) {
-                if (this.initialStage === null)
-                    this.initialStage = stage;
+                if (this.initialStageKey === null)
+                    this.initialStageKey = stageKey;
                 else
                     throw new ConfigError(`Stages ${this.initialStage.key} and ${stageKey} both marked as initial`);
             }
@@ -22,44 +19,47 @@ export default class StageManager {
         if (this.initialStageKey === null)
             throw new ConfigError("No stage specified as initial stage");
 
-        this.activeStages = [this.initialStage];
-        this.currentStage = this.initialStage;
+        this.reset();
     }
 
-    resolveCurrentStage() {
-        const results = this.currentStage.resolve();
-        console.log("Stage resolution:");
-        Object.entries(results).forEach(([key, value]) => {
-            console.log(`  ${key}: ${value.toString()}`);
-        });
+    reset() {
+        this.currentStage = this.stages[this.initialStageKey];
+        this.currentStage.reset();
+        this.currentState = this.currentStage.state;
+        this.states = [this.currentState];
     }
 
-    // doStageTransition() {
-    //     this.stage = this.nextStage;
-    //     this.stage.refresh();
-    //     this.nextStage = null;
-    //     if (this.stage === this.initialStage)
-    //         this.activeStages = [this.stage];
-    //     else
-    //         this.activeStages.push(this.stage);
-    // }
+    resolve() {
+        const { label } = this.currentStage;
+        this.currentState = this.currentStage.resolve();
+        const next = this.currentStage.resolution.next.value;
+        if (!(next in this.stages))
+            throw new ConfigError(`${label} resolved with invalid next key ${next}`);
+    }
 
-    _show(stage) {
-        console.log(`${stage.label}: ${stage.status.description}`);
-        if (stage.results) {
-            Object.keys(stage.results).forEach((key) => {
-                console.log(`  ${key}: ${stage.results[key]}`);
-            });
+    userActionDone() {
+        this.currentState = this.currentStage.userActionDone();
+    }
+
+    advanceTimer() {
+        this.currentState = this.currentStage.advanceTimer();
+    }
+
+    transitionStage() {
+        const { next } = this.currentState;
+        if (next == this.initialStageKey)
+            this.reset();
+        else {
+            this.currentStage = this.stages[next];            
+            this.currentState = this.currentStage.reset();
+            this.states.push(this.currentState);
         }
     }
-    showCurrentStage() {
-        this._show(this.currentStage);
-    }
 
-    showAllStages() {
-        this.activeStages.forEach((stage) => {
-            this._show(stage);
-        })
-        console.log();
+    log() {
+        this.states.forEach((state) => {
+            console.log(state);
+        });
+        console.log("=============================");
     }
 }

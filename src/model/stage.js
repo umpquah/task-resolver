@@ -4,10 +4,10 @@ import { ConfigError, StageError } from "./error.js";
 
 
 export const StageStatus = Object.freeze({
-    INITIAL: Symbol("initial"),
-    WAITING: Symbol("waiting"),
-    ACTING: Symbol("acting"),
-    FINISHED: Symbol("finished"),
+    INITIAL: "initial",
+    WAITING: "waiting",
+    ACTING: "acting",
+    FINISHED: "finished",
 });
 
 export default class Stage extends ConfigComponent {
@@ -18,7 +18,7 @@ export default class Stage extends ConfigComponent {
         super(parentKey, details);
         this._loadDetails(parentKey, details);
         this.key = parentKey;
-        this._refresh();
+        this.reset();
     }
 
     _loadDetails(parentKey, details) {
@@ -47,55 +47,50 @@ export default class Stage extends ConfigComponent {
     }
 
     _validateMethod(methodName, expectedStatus) {
-        if (this.status != expectedStatus) 
-            throw new StageError(`${this.key}: ${methodName}() at this time`);
+        if (this.state.status != expectedStatus) 
+            throw new StageError(`${this.key}: ${methodName}() not valid at this time`);
     }
 
     resolve() {
         this._validateMethod("resolve", StageStatus.INITIAL);
-        let results = {}
-        if ("action" in this.resolution) {
-            this.status = StageStatus.ACTING;
-            results.action = this.resolution.action.value;
-        } else if ("wait" in this.resolution) {
-            this.status = StageStatus.WAITING;
-            results.wait = this.resolution.wait.value;
+        const { announce, action, wait } = this.resolution;
+        this.state.announce = announce.value;
+        if (action) {
+            this.state.status = StageStatus.ACTING;
+            this.state.action = this.resolution.action.value;
+        } else if (wait) {
+            this.state.status = StageStatus.WAITING;
+            this.state.timer = {duration: this.resolution.wait.value, ellapsed: 0};
         } else {
-            this.status = StageStatus.FINISHED;
-            this.next = this.resolution.next.value;
+            this._finish();
         }
-        results.announce = this.resolution.announce.value;
-        results.status = this.status;
-        return results;
+        return this.state;
     }
 
     userActionDone() {
         this._validateMethod("userActionDone", StageStatus.ACTING);
         this._finish();
+        return this.state;
     }
 
-    _tick() {
-        this._timer.ellapsed += 1;
-        if (this._timer.duration == this._timer.ellapsed) {
-            clearInterval(this._timer);
+    advanceTimer() {
+        this._validateMethod("advanceTimer", StageStatus.WAITING);
+        const { timer } = this.state;
+        timer.ellapsed += 1;
+        if (timer.duration == timer.ellapsed) 
             this._finish();
-        }
-    }
-
-    _startTimer(duration) {
-        this._timer = setInterval(this._tick.bind(this), 1000);
-        this.timer = {duration: duration, ellapsed: 0};
+        return this.state;
     }
 
     _finish() {
-        this.status = StageStatus.FINISHED;
-
+        this.state.status = StageStatus.FINISHED;
+        this.state.next = this.resolution.next.value;
     }
 
-    _refresh() {
+    reset() {
         this.parameters.refresh();
-        this.state = {};
-        this.status = StageStatus.INITIAL;
+        this.state = {label: this.label, status: StageStatus.INITIAL};
+        return this.state;
     }
 
     show() {
@@ -105,7 +100,6 @@ export default class Stage extends ConfigComponent {
                 console.log(`  ${key}: ${this[confType][key].value}`);
             });
         })
-
     }
 
 }

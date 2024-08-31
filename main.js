@@ -1,14 +1,10 @@
 import StageManager from "./src/model/stage-manager.js";
+import { StageStatus } from "./src/model/stage.js";
 
 function test() {
-
-    const line = () => {
-        console.log("=======================");
-    }
-
     const overallConfig = {
         stageA: {
-            // initial: true, 
+            initial: true, 
             label: "Stage A",
             parameters: {
                 static: {num: 17, word: "Tango"},
@@ -31,52 +27,43 @@ function test() {
             label: "Stage B",
             parameters: {
                 static: { answer: 42 },
-                select: { prize: ["balloon", "puppy", "gold coing"]},
+                select: { prize: ["balloon", "puppy", "gold coin"]},
             },
             calculations: null,
             resolution: {
                 announce: "`The answer is ${answer}`",
-                action: "`You get a ${prize}.`",
+                action: "`Retrieve your prize, a ${prize}.`",
                 next: "'stageC'",
             },
         },
         stageC: {
-            initial: true,
             label: "Stage C",
             parameters: {
-                range: { delay: [3, 7] },
+                range: { delay: [1, 3] },
             },
             calculations: null,
             resolution: {
-                announce: "`Now wait ${delay} minutes`",
-                wait: "delay * 60",
+                announce: "`Now wait ${delay * 2} seconds`",
+                wait: "delay * 2",
                 next: "'stageA'",
             },
         },
     };
 
     const manager = new StageManager(overallConfig);
-    manager.showCurrentStage();
-    line();
-    manager.resolveCurrentStage();
-    line();
-    manager.showCurrentStage();
-
-    
-
-    // for (let i = 0; i < 6; i++) {
-    //     state.show();
-    //     console.log("=========================")
-    //     console.log();
-    //     state.doStageResolution();
-    //     state.show();
-    //     console.log("=========================")
-    //     console.log();
-    //     state.doStageTransition();
-    // }
-
-
+    for (let i = 0; i < 20; i++) {
+        manager.log();
+        const { status } = manager.currentState;
+        if (status == StageStatus.INITIAL) {
+            manager.resolve();
+        } else if (status == StageStatus.ACTING) {
+            manager.userActionDone();
+        } else if (status == StageStatus.WAITING) {
+            manager.advanceTimer();
+        } else if (status == StageStatus.FINISHED) {
+            manager.transitionStage();
+        }
+    }
 }
-
 
 test();

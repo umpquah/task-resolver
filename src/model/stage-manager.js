@@ -5,8 +5,7 @@ import { ConfigError } from "./error.js";
 export default class StageManager {
     constructor(details) {
         const { parameters, stages: allStages } = details;
-        const globals = new ParametersConfig("parameters", parameters, {});
-        const stageKeys = Object.keys(details);
+        const globals = new ParametersConfig("parameters", parameters, []);
         this.stages = {}
         this.initialStageKey = null;
         Object.entries(allStages).forEach(([stageKey, stageDetails]) => {

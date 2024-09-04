@@ -5,8 +5,8 @@ export default class ResolutionConfig extends VariableGroupConfig {
     static requiredProps = ["next"];
     static optionalProps = ["announce", "action", "wait"];
 
-    constructor(parentKey, details, variables) {
-        super(`${parentKey}.resolution`, details, DerivedVariable, variables);
+    constructor(parentKey, details, otherVariables) {
+        super(`${parentKey}.resolution`, details, DerivedVariable, otherVariables);
     }
 
     _validateProps(parentKey, details) {

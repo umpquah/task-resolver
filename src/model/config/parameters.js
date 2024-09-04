@@ -18,26 +18,24 @@ const variableClassForParameterType = (paramType) => {
 export default class ParametersConfig extends ConfigComponent {
     static optionalProps = ["static", "range", "select", "bool"];
 
-    constructor(parentKey, details, globals) {
+    constructor(parentKey, details, otherVariables) {
         const key = `${parentKey}.params`;
         super(key, details);
-        this._loadDetails(key, details, globals);
+        this._loadDetails(key, details, otherVariables);
     }
 
-    _loadDetails(parentKey, details, globals) {
+    _loadDetails(parentKey, details, otherVariables) {
         for (const parameterType in details) {
-            const globalNames = Object.keys(globals);
+            // const globalNames = Object.keys(globals);
             const groupConfig = new VariableGroupConfig(
                 `${parentKey}.${parameterType}`,
                 details[parameterType],
                 variableClassForParameterType(parameterType),
+                otherVariables,
             );
             for (const variableName in groupConfig) {
-                console.log("Checking " + variableName);
-                if (variableName in this)
-                    throw new ConfigError(`${parentKey}: Duplicate use of '${variableName}'`);
-                if (globalNames.includes(variableName))
-                    throw new ConfigError(`${parentKey}: '${variableName}' already declared in global params`);
+                // if (variableName in this)
+                //     throw new ConfigError(`${parentKey}: Duplicate use of '${variableName}'`);
                 this[variableName] = groupConfig[variableName];
             }
         }

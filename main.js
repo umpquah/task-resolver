@@ -21,7 +21,6 @@ function test() {
                     dessert: "size + '-inch cake with ' + flavor + ' ' + food",
                     dist: "steps * 5",
                     topping: "hasSprinkles ? 'with sprinkles' : '(plain)'",
-                    
                 },
                 resolution: {
                     announce: "`Agent ${word}-${num}, you get to eat a ${dessert} ${topping}`",
@@ -47,7 +46,7 @@ function test() {
                 parameters: {
                     range: { delay: [1, 3] },
                 },
-                calculations: null,
+                calculations: {},
                 resolution: {
                     announce: "`Now wait ${delay * 2} seconds`",
                     wait: "delay * 2",

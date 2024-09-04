@@ -23,15 +23,17 @@ export default class Stage extends ConfigComponent {
     _loadDetails(parentKey, details, globals) {
         this.label = details.label;
         this.isInitial = details.initial;
+        let variables = [Object.values(globals)];
         this.parameters = new ParametersConfig(
             parentKey,
             details.parameters,
-            globals,
+            variables,
         );
+        variables.push(...Object.values(this.parameters), ...BUILTIN_FUNCTIONS);
         this.calculations = new CalculationsConfig(
             parentKey,
             details.calculations,
-            Object.values(this.parameters).concat(BUILTIN_FUNCTIONS)
+            variables,
         );
         // Check for parameter names reused within resolution
         const parameterNames = Object.values(this.parameters).map(p => p.name);
@@ -39,10 +41,11 @@ export default class Stage extends ConfigComponent {
             if (parameterNames.includes(calc.name))
                 throw new ConfigError(`Duplicate use of '${calc.name}'`);
         });
+        variables.push(...Object.values(this.calculations));
         this.resolution = new ResolutionConfig(
             parentKey,
             details.resolution,
-            [...Object.values(this.parameters), ...Object.values(this.calculations)]
+            variables,
         );
     }
 

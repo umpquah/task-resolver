@@ -8,12 +8,12 @@ const RESERVED_NAMES = [
 
 
 export default class VariableGroupConfig extends ConfigComponent {
-    constructor(parentKey, details, variableClass, varInitArg ) {
+    constructor(parentKey, details, variableClass, variableInitArg ) {
         super(parentKey, details);
         for (const variableName in details) {
             this._validateVariableName(parentKey, variableName);
             const key = `${parentKey}.${variableName}`;
-            this[variableName] = new variableClass(key, details[variableName], varInitArg);
+            this[variableName] = new variableClass(key, details[variableName], variableInitArg);
         }
     }
 

@@ -1,13 +1,16 @@
 import Stage from "./stage.js";
+import { ParametersConfig } from "./config/index.js";
 import { ConfigError } from "./error.js";
 
 export default class StageManager {
     constructor(details) {
+        const { parameters, stages: allStages } = details;
+        const globals = new ParametersConfig("parameters", parameters, {});
         const stageKeys = Object.keys(details);
         this.stages = {}
         this.initialStageKey = null;
-        Object.entries(details).forEach(([stageKey, stageDetails]) => {
-            const stage = new Stage(stageKey, stageDetails);
+        Object.entries(allStages).forEach(([stageKey, stageDetails]) => {
+            const stage = new Stage(stageKey, stageDetails, globals ?? {});
             if (stage.isInitial) {
                 if (this.initialStageKey === null)
                     this.initialStageKey = stageKey;
@@ -18,7 +21,6 @@ export default class StageManager {
         });
         if (this.initialStageKey === null)
             throw new ConfigError("No stage specified as initial stage");
-
         this.reset();
     }
 

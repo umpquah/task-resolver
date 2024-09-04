@@ -2,8 +2,12 @@ import { useEffect, useState } from "react";
 import { Button, Container, ProgressBar, Spinner } from "react-bootstrap";
 import Instructions from "../Instructions";
 
+
+const NORMAL_SECOND = 1000;
+// const ONE_SECOND = NORMAL_SECOND;
+const ONE_SECOND = 10;
+
 const ROLLING_DELAY = 500;
-const SECOND_DELAY = 10;
 
 const Stage = ({
   stageConfig: {
@@ -72,7 +76,7 @@ const Stage = ({
   }
 
   const startTimer = () => {
-    const timer = setInterval(tick, SECOND_DELAY);
+    const timer = setInterval(tick, ONE_SECOND);
     const seconds = resultValue * durationMultiplier;
     setTimeRemaining(seconds);
     setDuration(seconds);

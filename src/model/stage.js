@@ -13,26 +13,27 @@ export default class Stage extends ConfigComponent {
     static requiredProps = ["label", "parameters", "calculations", "resolution"];
     static optionalProps = ["initial"];
 
-    constructor(parentKey, details) {
+    constructor(parentKey, details, globals) {
         super(parentKey, details);
-        this._loadDetails(parentKey, details);
+        this._loadDetails(parentKey, details, globals);
         this.key = parentKey;
         this.reset();
     }
 
-    _loadDetails(parentKey, details) {
+    _loadDetails(parentKey, details, globals) {
         this.label = details.label;
         this.isInitial = details.initial;
         this.parameters = new ParametersConfig(
             parentKey,
-            details.parameters
+            details.parameters,
+            globals,
         );
         this.calculations = new CalculationsConfig(
             parentKey,
             details.calculations,
             Object.values(this.parameters).concat(BUILTIN_FUNCTIONS)
         );
-        // Check for duplicates
+        // Check for parameter names reused within resolution
         const parameterNames = Object.values(this.parameters).map(p => p.name);
         Object.values(this.calculations).forEach((calc) => {
             if (parameterNames.includes(calc.name))

@@ -1,5 +1,6 @@
 import VariableGroupConfig from "./variable-group.js";
 import DerivedVariable from "../variable/derived.js";
+import { ConfigError } from "../error.js";
 
 export default class ResolutionConfig extends VariableGroupConfig {
     static requiredProps = ["next"];
@@ -14,7 +15,7 @@ export default class ResolutionConfig extends VariableGroupConfig {
         const propsPresent = ResolutionConfig.optionalProps.filter((prop) => (prop in details));
         if (propsPresent.length == 0) {
             throw new ConfigError(
-                `${parentKey} must specify at least one: ${ResolutionComponent.optionalProps.join(', ')}`
+                `${parentKey} must specify at least one: ${ResolutionConfig.optionalProps.join(', ')}`
             );
         }
         if (propsPresent.includes("action") && propsPresent.includes("wait")) {

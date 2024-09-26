@@ -57,7 +57,7 @@ $corner-radius: 1rem;
   }
 }
 
-.banner, .resultMsg {
+.banner, .result {
   padding: 0.5rem 0 0.5rem 0;
 }
 
@@ -66,11 +66,11 @@ $corner-radius: 1rem;
   border-bottom: 1px solid $active-outline;
 }
 
-.resultMsg, .completionMsg {
+.result {
   border-bottom: 1px solid $active-outline;
 }
 
-.name {
+.label {
   font-size: 1.5rem;
   font-weight: bold;
   color: $active-text-darker;
@@ -84,7 +84,7 @@ $corner-radius: 1rem;
   font-size: 1.1rem;
 }
 
-.instruction {
+.announcement {
   font-size: 1.5rem;
   font-weight: bold;
   color: $active-text-darker;

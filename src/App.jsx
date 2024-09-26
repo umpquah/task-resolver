@@ -1,32 +1,54 @@
 import { useEffect, useState } from "react";
-import { Container, Tab, Tabs } from "react-bootstrap";
-import { DEFAULT_CONFIG_JSON, SFW_LEXICON } from "./settings/defaults";
+import { Button, Container, Tab, Tabs } from "react-bootstrap";
+import { DEFAULT_SETTINGS_JSON } from "./settings/defaults";
+import { ConfigError } from "./model/error";
+import { StageStatus } from "./model/stage";
+import Stage from "./components/Stage";
 import Game from "./pages/Game";
 import ConfigPanel from "./pages/ConfigPanel"
 import MessageBanner from "./components/MessageBanner";
-import Test from "./components/Test";
 import './style.scss';
+import StageManager from "./model/stage-manager";
 
-const App = () => {
-  const [config, setConfig] = useState(null);
-  const [error, setError] = useState("");
+const App = ({
+  settings = DEFAULT_SETTINGS_JSON
+}) => {
+  const [stageManager, setStageManager] = useState(new StageManager(JSON.parse(settings)));
+  const [stageStates, setStageStates] = useState([stageManager.currentStage.state]);
 
-  // useEffect(() => {
-  //   try {
-  //     const initialConfig = new Config(DEFAULT_CONFIG_JSON(SFW_LEXICON));
-  //     setConfig(initialConfig);
-  //   } catch (e) {
-  //     if (e instanceof ConfigError) {
-  //       setError({header: "Configuration Problem", message: e.message});
-  //     } else {
-  //       setError({header:`Unexpected Error - ${e.name}`, message: e.message});
-  //     }
-  //   }
-  // }, []);
+  const advance = () => {
+    const { status } = stageManager.currentStage.state;
+    let state;
+    if (status === StageStatus.LOADED) {
+      state = stageManager.resolve();
+    } else if (status === StageStatus.ACTING) {
+      state = stageManager.userActionDone();
+    } else if (status === StageStatus.WAITING) {
+      state = stageManager.advanceTimer();
+    } else if (status === StageStatus.FINISHED) {
+      state = stageManager.transitionStage();
+    }
+    if (state.initial)
+      setStageStates([state]);
+    else if (state.status === StageStatus.LOADED)
+      setStageStates((states) => [...states, state]);
+    else
+      setStageStates((states) => [...states.slice(0, -1), state]);
+  };
 
   return (
     <Container id="main">
-      <Test />
+      <Button
+        onClick={advance}
+      >
+        Advance
+      </Button>
+      <div>
+        {stageStates.map((stageState) => (
+          <Stage {...stageState} key={stageState.label}/>
+        ))
+        }
+      </div>
     {/*
       <MessageBanner {...error} isError={true} />
       <Tabs fill defaultActiveKey="game">

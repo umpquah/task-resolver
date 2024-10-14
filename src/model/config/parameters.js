@@ -41,9 +41,9 @@ export default class ParametersConfig extends ConfigComponent {
         }
     }
 
-    refresh() {
+    reset() {
         Object.values(this).forEach((paramVariable) => {
-            paramVariable.refresh();
+            paramVariable.reset();
         })
     }
 }

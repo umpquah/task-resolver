@@ -12,7 +12,7 @@ export default class BoolVariable extends AbstractVariable {
             this.throwConfigError("must be between 0 and 1");
     }
 
-    refresh() {
+    reset() {
         this.value = (Math.random() < this.probability);
     }
 }

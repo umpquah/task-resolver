@@ -9,12 +9,12 @@ export class AbstractVariable {
         this.name = key.split(".").slice(-1)[0];
         this.validateSpec(spec);
         this.loadSpec(spec);
-        this.refresh();
+        this.reset();
     }
 
     validateSpec() {}
     loadSpec() {}
-    refresh() {}
+    reset() {}
     
     throwConfigError(msg) {
         throw new ConfigError(`${this.key}: ${msg}`)

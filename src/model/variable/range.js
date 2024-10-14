@@ -16,7 +16,7 @@ export default class RangeVariable extends AbstractVariable {
             this.throwConfigError("1st value cannot be larger than 2nd value");
     }
 
-    refresh() {
+    reset() {
         this.value = Math.floor(Math.random() * (this.max - this.min + 1)) + this.min;
     }
 }

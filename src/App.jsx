@@ -14,27 +14,29 @@ const App = ({
   settings = DEFAULT_SETTINGS_JSON
 }) => {
   const [stageManager, setStageManager] = useState(new StageManager(JSON.parse(settings)));
-  const [stageStates, setStageStates] = useState([stageManager.currentStage.state]);
+  const [states, setStates] = useState([stageManager.currentStage.state]);
 
   const advance = () => {
     const { status } = stageManager.currentStage.state;
     let state;
     if (status === StageStatus.LOADED) {
-      state = stageManager.resolve();
+      state = stageManager.resolveCurrentStage();
     } else if (status === StageStatus.ACTING) {
       state = stageManager.userActionDone();
     } else if (status === StageStatus.WAITING) {
       state = stageManager.advanceTimer();
     } else if (status === StageStatus.FINISHED) {
-      state = stageManager.transitionStage();
+      state = stageManager.advanceToNextStage();
     }
     if (state.initial)
-      setStageStates([state]);
+      setStates([state]);
     else if (state.status === StageStatus.LOADED)
-      setStageStates((states) => [...states, state]);
+      setStates((states) => [...states, state]);
     else
-      setStageStates((states) => [...states.slice(0, -1), state]);
+      setStates((states) => [...states.slice(0, -1), state]);
   };
+
+  const activeState = states[states.length - 1];
 
   return (
     <Container id="main">
@@ -43,8 +45,11 @@ const App = ({
       >
         Advance
       </Button>
+      <pre>
+        {JSON.stringify(activeState, null, 2)}
+      </pre>
       <div>
-        {stageStates.map((stageState) => (
+        {states.map((stageState) => (
           <Stage {...stageState} key={stageState.label}/>
         ))
         }

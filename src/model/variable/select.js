@@ -10,7 +10,7 @@ export default class SelectVariable extends AbstractVariable {
             this.throwConfigError("must be an array with >=1 items");
     }
 
-    refresh() {
+    reset() {
         const r = Math.floor(Math.random() * this.options.length);
         this.value = this.options[r];
     }

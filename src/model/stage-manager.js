@@ -5,7 +5,7 @@ import { ConfigError } from "./error.js";
 export default class StageManager {
     constructor(details) {
         this._loadDetails(details);
-        this._newStage(this.initialStageKey);
+        this._setCurrentStageByKey(this.initialStageKey);
     }
 
     _loadDetails(details) {
@@ -28,13 +28,13 @@ export default class StageManager {
         
     }
 
-    _newStage(stageKey) {
+    _setCurrentStageByKey(stageKey) {
         this.currentStage = this.stages[stageKey];
         this.currentStage.reset();
         return this.currentStage.state;
     }
 
-    resolve() {
+    resolveCurrentStage() {
         const state = this.currentStage.resolve(Object.keys(this.stages));
         return state;
     }
@@ -47,8 +47,8 @@ export default class StageManager {
         return this.currentStage.advanceTimer();
     }
 
-    transitionStage() {
+    advanceToNextStage() {
         const { next } = this.currentStage.state;
-        return this._newStage(next);
+        return this._setCurrentStageByKey(next);
     }
 }

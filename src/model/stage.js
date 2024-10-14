@@ -82,7 +82,7 @@ export default class Stage extends ConfigComponent {
     }
 
     reset() {
-        this.parameters.refresh();
+        this.parameters.reset();
         this.state = {label: this.label, status: StageStatus.LOADED};
         if (this.isInitial)
             this.state.initial = true;

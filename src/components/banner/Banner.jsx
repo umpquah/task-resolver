@@ -1,14 +1,12 @@
 import { Alert } from "react-bootstrap";
 
-const MessageBanner = ({ header, message, isError }) => {
+export default function Banner({ header, message, isError }) {
   return (
     message 
     ? <Alert variant={ isError ? "danger" : "primary" }>
-        { header && <><span className="emphasized">{header}</span><br /></> }
+        { header && <><span className="header">{header}</span><br /></> }
         {message} 
       </Alert>
     : "" 
   );
-};
-
-export default MessageBanner;
+}

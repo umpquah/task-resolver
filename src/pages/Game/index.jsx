@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
-import Stage from "../../components/Stage";
+import Stage from "../../components/stage";
 
 const Game = ({ config, setConfig, setError }) => {  
 

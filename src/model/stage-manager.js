@@ -1,6 +1,6 @@
 import StageConfig from "./stage.js";
 import { ParametersConfig } from "./config/index.js";
-import { ConfigError } from "./error.js";
+import { ConfigError } from "./util/error.js";
 
 export default class StageManager {
     constructor(details) {

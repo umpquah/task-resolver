@@ -1,4 +1,4 @@
-import { StaticVariable } from "./variable/index.js";
+import { StaticVariable } from "../config/variable";
 
 const BUILTIN_FUNCTIONS = [
     new StaticVariable("formatWithUnits", (amount, singularUnit, pluralUnit) => (

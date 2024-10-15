@@ -1,5 +1,5 @@
 
-import { ConfigError } from "../error.js";
+import { ConfigError } from "../util/error.js";
 
 export default class ConfigComponent {
     static requiredProps = [];

@@ -1,4 +1,4 @@
-import { ConfigError } from "../error.js";
+import { ConfigError } from "../util/error.js";
 import ConfigComponent from "./component.js";
 
 const RESERVED_NAMES = [

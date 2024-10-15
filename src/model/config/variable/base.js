@@ -1,8 +1,8 @@
-import { ConfigError } from "../error.js";
+import { ConfigError } from "../../util/error.js";
 
 export class AbstractVariable {
     constructor(key, spec) {
-        if (this.constructor == AbstractVariable) {
+        if (this.constructor === AbstractVariable) {
             throw Error("AbstractVariable cannot be instantiated")
         }
         this.key = key;

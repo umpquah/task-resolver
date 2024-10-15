@@ -1,7 +1,6 @@
 import ConfigComponent from "./component.js";
 import VariableGroupConfig from "./variable-group.js";
-import { BoolVariable, RangeVariable, SelectVariable, StaticVariable } from "../variable/index.js";
-import { ConfigError } from "../error.js";
+import { BoolVariable, RangeVariable, SelectVariable, StaticVariable } from "./variable";
 
 
 const PARAMETER_TYPE_MAP  = {

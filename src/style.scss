@@ -8,6 +8,19 @@ $corner-radius: 1rem;
 #main {
   width: 480px;
   margin-top: 1rem;
+  .nav-link {
+    border-radius: $corner-radius $corner-radius 0 0;
+    background-color: #eee;
+    color: #999;
+    border-bottom-color: $active-outline;
+    .active {
+      background-color: $active-bg;
+      border-color: $active-outline;
+      border-bottom-color: $active-bg;
+      color: $active-text;
+      font-weight: bold;
+    }
+  }
 }
 
 .tab-content > div > .container,  .tab-content > div > .container-fluid {
@@ -18,33 +31,11 @@ $corner-radius: 1rem;
   padding: 1rem;
 }
 
-
-
-#main .nav-link {
-  border-radius: $corner-radius $corner-radius 0 0;
-}
-
-#main .nav-link.active {
-  background-color: $active-bg;
-  border-color: $active-outline;
-  border-bottom-color: $active-bg;
-  color: $active-text;
-  font-weight: bold;
-}
-
-#main .nav-link {
-  background-color: #eee;
-  color: #999;
-  border-bottom-color: $active-outline;
-}
-
 .container.stage {
   text-align: center;
   font-size: 1.3rem;
-  margin-bottom: 3rem;
-}
+  margin-bottom: 2rem;
 
-.cotainer.stage {
   button {
     background-color: $active-text;
     border: solid 1px $active-outline;
@@ -57,44 +48,35 @@ $corner-radius: 1rem;
   }
 }
 
-.banner, .result {
+.stage-banner {
   padding: 0.5rem 0 0.5rem 0;
-}
-
-.banner {
   border-top: 1px solid $active-outline;
   border-bottom: 1px solid $active-outline;
-}
-
-.result {
-  border-bottom: 1px solid $active-outline;
-}
-
-.label {
   font-size: 1.5rem;
   font-weight: bold;
   color: $active-text-darker;
+  background-color: $active-bg;
 }
 
-.roll, .complete {
-  margin-top: 0.5rem;
+.roll, .announcement, .action {
+  padding-top: 0.5rem;
+  padding-bottom: 1rem;
 }
 
 .plain {
   font-size: 1.1rem;
 }
 
-.announcement {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: $active-text-darker;
-  .result {
+.announcement, .action {
+  font-size: 1.2rem;
+  .callout {
     color: $special-text;
     text-decoration: underline;
   }
+  border-bottom: 1px solid $active-outline;
 }
 
-.emphasized {
+.header {
   font-weight: bold;
 }
 

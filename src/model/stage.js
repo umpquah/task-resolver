@@ -1,6 +1,6 @@
 import { CalculationsConfig, ConfigComponent, ParametersConfig, ResolutionConfig } from "./config/index.js";
-import { ConfigError, StageError } from "./error.js";
-import BUILTIN_FUNCTIONS from "./builtins.js";
+import { ConfigError, StageError } from "./util/error.js";
+import BUILTIN_FUNCTIONS from "./util/builtins.js";
 
 export const StageStatus = Object.freeze({
     LOADED: "loaded",
@@ -61,7 +61,9 @@ export default class Stage extends ConfigComponent {
             this.state.action = this.resolution.action.value;
         } else if (wait) {
             this.state.status = StageStatus.WAITING;
-            this.state.timer = {duration: this.resolution.wait.value, ellapsed: 0};
+            this.state.wait = {duration: this.resolution.wait.value, elapsed: 0};
+        } else {
+            this.state.status = StageStatus.FINISHED;
         }
         return this.state;
     }
@@ -74,9 +76,9 @@ export default class Stage extends ConfigComponent {
 
     advanceTimer() {
         this._validateMethod("advanceTimer", StageStatus.WAITING);
-        const { timer } = this.state;
-        timer.ellapsed += 1;
-        if (timer.duration === timer.ellapsed) 
+        const { wait } = this.state;
+        wait.elapsed += 1;
+        if (wait.duration === wait.elapsed) 
             this._finish();
         return this.state;
     }

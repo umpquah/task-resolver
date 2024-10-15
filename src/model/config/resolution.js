@@ -1,6 +1,6 @@
 import VariableGroupConfig from "./variable-group.js";
-import DerivedVariable from "../variable/derived.js";
-import { ConfigError } from "../error.js";
+import { DerivedVariable } from "./variable";
+import { ConfigError } from "../util/error.js";
 
 export default class ResolutionConfig extends VariableGroupConfig {
     static requiredProps = ["next"];
@@ -13,7 +13,7 @@ export default class ResolutionConfig extends VariableGroupConfig {
     _validateProps(parentKey, details) {
         super._validateProps(parentKey, details);
         const propsPresent = ResolutionConfig.optionalProps.filter((prop) => (prop in details));
-        if (propsPresent.length == 0) {
+        if (propsPresent.length === 0) {
             throw new ConfigError(
                 `${parentKey} must specify at least one: ${ResolutionConfig.optionalProps.join(', ')}`
             );

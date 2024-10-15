@@ -1,5 +1,5 @@
 import VariableGroupConfig from "./variable-group.js";
-import DerivedVariable from "../variable/derived.js";
+import { DerivedVariable } from "./variable";
 
 export default class CalculationsConfig extends VariableGroupConfig {
     constructor(parentKey, details, otherVariables) {

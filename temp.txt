@@ -1,2 +1,2 @@
-blah de blah
+foo
 
